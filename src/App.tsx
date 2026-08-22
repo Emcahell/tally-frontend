@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/auth/RegisterPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { BottomNav } from './components/shared/layout/BottomNav';
+import { ProtectedRoute } from './routes/ProtectedRoute';
 
 function DashboardLayout() {
   return (
@@ -17,12 +18,31 @@ function DashboardLayout() {
 function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/inicio" element={<DashboardLayout />} />
-      <Route path="/perfil" element={<ProfilePage />} />
-      <Route path="/" element={<Navigate to="/inicio" replace />} />
-      <Route path="*" element={<Navigate to="/inicio" replace />} />
+
+      {/* Protected routes */}
+      <Route
+        path="/inicio"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Redirects */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
