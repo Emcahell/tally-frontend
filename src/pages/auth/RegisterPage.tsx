@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  User,
-  Envelope,
-  Phone,
-  Lock,
-  Eye,
-  EyeSlash,
-  ArrowRight,
-} from "phosphor-react";
+import { User, Envelope, Phone, Lock, Eye, EyeSlash } from "phosphor-react";
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { register } from "../../services/auth.service";
@@ -234,10 +226,7 @@ export function RegisterPage() {
             {loading ? (
               <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
             ) : (
-              <>
-                Crear Cuenta
-                <ArrowRight size={18} weight="bold" />
-              </>
+              <>Crear Cuenta</>
             )}
           </button>
         </form>

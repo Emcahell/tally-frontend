@@ -6,7 +6,7 @@ import {
   SignOut,
   CaretRight,
   CheckCircle,
-  ArrowLeft,
+  CaretLeft,
 } from 'phosphor-react';
 import { Avatar } from '../../components/ui/Avatar';
 import { GlassCard } from '../../components/ui/GlassCard';
@@ -55,7 +55,7 @@ export function ProfilePage() {
             className="w-10 h-10 rounded-full bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
             aria-label="Volver"
           >
-            <ArrowLeft size={20} weight="bold" />
+            <CaretLeft size={20} weight="bold" />
           </button>
           <h1 className="text-base font-bold text-text-primary">Mi Perfil</h1>
         </header>
