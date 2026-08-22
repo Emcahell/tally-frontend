@@ -1,11 +1,12 @@
-import { Bell } from "phosphor-react";
-import { Avatar } from "../../ui/Avatar";
-import { IconButton } from "../../ui/IconButton";
+import { Link } from 'react-router-dom';
+import { Bell } from 'phosphor-react';
+import { Avatar } from '../../ui/Avatar';
+import { IconButton } from '../../ui/IconButton';
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-8 pb-4 flex items-center justify-between w-screen mx-auto">
-      <div className="flex items-center gap-3">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center justify-between max-w-lg mx-auto">
+      <Link to="/perfil" className="flex items-center gap-3">
         <Avatar
           src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
           alt="Alex Turner"
@@ -17,7 +18,7 @@ export function Header() {
             Alex Turner
           </h1>
         </div>
-      </div>
+      </Link>
 
       <IconButton aria-label="Notificaciones" badge>
         <Bell size={20} weight="bold" />

@@ -1,28 +1,29 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Envelope, Lock, Eye, EyeSlash, ArrowRight } from 'phosphor-react';
-import { AuthLayout } from '../../components/shared/layout/AuthLayout';
-import { GlassCard } from '../../components/ui/GlassCard';
-import { login } from '../../services/auth.service';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Envelope, Lock, Eye, EyeSlash, ArrowRight } from "phosphor-react";
+import { AuthLayout } from "../../components/shared/layout/AuthLayout";
+import { GlassCard } from "../../components/ui/GlassCard";
+import { login } from "../../services/auth.service";
+import { Logo } from "../../components/shared/Logo";
 
 export function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       const response = await login({ email, password });
-      localStorage.setItem('token', response.token);
-      window.location.href = '/inicio';
+      localStorage.setItem("token", response.token);
+      window.location.href = "/inicio";
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -32,12 +33,13 @@ export function LoginPage() {
     <AuthLayout>
       {/* Logo / Brand */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl font-extrabold text-primary">T</span>
+        <div className="flex items-center justify-center mx-auto mb-4">
+          <Logo />
+          <h1 className="text-2xl ml-2 text-primary font-extrabold">Tally</h1>
         </div>
-        <h1 className="text-2xl font-extrabold text-text-primary tracking-tight">
-          Bienvenido de vuelta
-        </h1>
+        <h2 className="text-xl font-semibold text-text-primary tracking-tight">
+          Tu dinero <span className="text-primary">Tally</span> como es
+        </h2>
         <p className="text-sm text-text-muted mt-1">
           Inicia sesión para acceder a tu cuenta
         </p>
@@ -54,11 +56,17 @@ export function LoginPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-xs font-medium text-text-secondary mb-1.5">
+            <label
+              htmlFor="email"
+              className="block text-xs font-medium text-text-secondary mb-1.5"
+            >
               Correo electrónico
             </label>
             <div className="relative">
-              <Envelope size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+              <Envelope
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+              />
               <input
                 id="email"
                 type="email"
@@ -74,14 +82,20 @@ export function LoginPage() {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-xs font-medium text-text-secondary mb-1.5">
+            <label
+              htmlFor="password"
+              className="block text-xs font-medium text-text-secondary mb-1.5"
+            >
               Contraseña
             </label>
             <div className="relative">
-              <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+              <Lock
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+              />
               <input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -93,7 +107,9 @@ export function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
               >
                 {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
               </button>
@@ -120,9 +136,11 @@ export function LoginPage() {
         {/* Register link */}
         <div className="mt-6 text-center">
           <p className="text-sm text-text-muted">
-            ¿No tienes cuenta?{' '}
-            <Link to="/register" className="text-primary font-semibold hover:text-primary-accent transition-colors">
-              Crear cuenta
+            <Link
+              to="/register"
+              className="text-primary font-semibold hover:text-primary-accent transition-colors"
+            >
+              Quiero crearme una cuenta en Tally
             </Link>
           </p>
         </div>
