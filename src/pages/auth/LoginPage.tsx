@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Envelope, Lock, Eye, EyeSlash, ArrowRight } from "phosphor-react";
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { login } from "../../services/auth.service";
+import { useAuth } from "../../hooks/useAuth";
 import { Logo } from "../../components/shared/Logo";
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +24,8 @@ export function LoginPage() {
     try {
       const response = await login({ email, password });
       localStorage.setItem("token", response.token);
-      window.location.href = "/inicio";
+      setUser(response.user);
+      navigate("/inicio", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
@@ -35,7 +39,7 @@ export function LoginPage() {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mx-auto mb-4">
           <Logo />
-          <h1 className="text-2xl ml-2 text-primary font-extrabold">Tally</h1>
+          <h1 className="text-3xl font-extrabold text-primary ml-2">Tally</h1>
         </div>
         <h2 className="text-xl font-semibold text-text-primary tracking-tight">
           Tu dinero <span className="text-primary">Tally</span> como es

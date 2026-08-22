@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Envelope,
@@ -12,9 +12,12 @@ import {
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { register } from "../../services/auth.service";
+import { useAuth } from "../../hooks/useAuth";
 import { Logo } from "../../components/shared/Logo";
 
 export function RegisterPage() {
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,7 +52,8 @@ export function RegisterPage() {
         password_confirmation: confirmPassword,
       });
       localStorage.setItem("token", response.token);
-      window.location.href = "/inicio";
+      setUser(response.user);
+      navigate("/inicio", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear cuenta");
     } finally {
@@ -99,7 +103,7 @@ export function RegisterPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Alex Turner"
+                placeholder="Simón Bolívar"
                 required
                 autoComplete="name"
                 className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
@@ -151,7 +155,7 @@ export function RegisterPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+52 55 1234 5678"
+                placeholder="+51 12 3456 7890"
                 required
                 autoComplete="tel"
                 className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"

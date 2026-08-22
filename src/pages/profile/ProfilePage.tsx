@@ -10,6 +10,8 @@ import {
 } from 'phosphor-react';
 import { Avatar } from '../../components/ui/Avatar';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { useAuth } from '../../hooks/useAuth';
+import { logout } from '../../services/auth.service';
 
 interface MenuItem {
   icon: React.ElementType;
@@ -20,9 +22,16 @@ interface MenuItem {
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      // ignore error, clear locally anyway
+    }
     localStorage.removeItem('token');
+    setUser(null);
     navigate('/login', { replace: true });
   }
 
@@ -62,25 +71,27 @@ export function ProfilePage() {
             {/* Profile Info */}
             <div className="px-6 pb-6 -mt-12 relative z-10 flex flex-col items-center text-center">
               <Avatar
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
-                alt="Alex Turner"
+                src={user?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256'}
+                alt={user?.name || 'Usuario'}
                 size="lg"
                 showStatus
               />
               <h2 className="text-lg font-bold text-text-primary mt-3">
-                Alex Turner
+                {user?.name || 'Usuario'}
               </h2>
               <p className="text-sm text-text-muted mt-0.5">
-                alex.turner@tallybank.com
+                {user?.email || ''}
               </p>
 
               {/* KYC Badge */}
-              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                <CheckCircle size={14} weight="fill" className="text-success" />
-                <span className="text-xs font-semibold text-success">
-                  Cuenta Verificada (KYC)
-                </span>
-              </div>
+              {user?.email_verified_at && (
+                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
+                  <CheckCircle size={14} weight="fill" className="text-success" />
+                  <span className="text-xs font-semibold text-success">
+                    Cuenta Verificada (KYC)
+                  </span>
+                </div>
+              )}
             </div>
           </GlassCard>
 

@@ -12,12 +12,17 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
   user: User;
+  token: string;
 }
 
 export interface User {
-  id: string;
-  email: string;
+  id: number;
   name: string;
+  email: string;
+  phone: string | null;
+  photo: string | null;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
