@@ -155,7 +155,7 @@ export function RegisterPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+51 12 3456 7890"
+                placeholder="+1 12 3456 7890"
                 required
                 autoComplete="tel"
                 className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
