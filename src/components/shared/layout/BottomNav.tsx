@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  SquaresFour,
+  House,
   ArrowUpRight,
   DownloadSimple,
   CreditCard,
@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: SquaresFour, label: "Inicio", to: "/inicio" },
+  { icon: House, label: "Inicio", to: "/inicio" },
   { icon: ArrowUpRight, label: "Enviar", to: "/enviar" },
   { icon: DownloadSimple, label: "Depositar", to: "/depositar" },
   { icon: CreditCard, label: "Tarjetas", to: "/tarjetas" },
