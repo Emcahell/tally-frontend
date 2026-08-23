@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { TermsAndConditionsPage } from './pages/terms/TermsAndConditionsPage';
+import { WelcomePage } from './pages/welcome/WelcomePage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { CardsPage } from './pages/cards/CardsPage';
@@ -26,6 +27,14 @@ function App() {
       <Route path="/terminos" element={<TermsAndConditionsPage />} />
 
       {/* Protected routes */}
+      <Route
+        path="/bienvenida"
+        element={
+          <ProtectedRoute>
+            <WelcomePage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/inicio"
         element={

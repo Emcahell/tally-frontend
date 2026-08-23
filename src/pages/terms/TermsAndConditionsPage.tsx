@@ -6,77 +6,67 @@ const sections = [
   {
     title: "1. Aceptación de los Términos",
     content:
-      "Al registrarte y utilizar los servicios de TallyBank, aceptas de forma libre, informada e inequívoca los presentes Términos y Condiciones. Si no estás de acuerdo con alguno de estos términos, no debes utilizar la plataforma.",
+      "Al registrarte y utilizar los servicios de Tally, aceptas de forma libre, informada e inequívoca los presentes Términos y Condiciones. Si no estás de acuerdo con alguno de estos términos, no debes utilizar la plataforma.",
   },
   {
     title: "2. Descripción del Servicio",
     content:
-      "TallyBank es una plataforma fintech que te permite gestionar cuentas digitales, realizar transferencias, administrar tarjetas de débito y acceder a servicios financieros de manera 100% digital. El servicio se proporciona a través de nuestra aplicación web y móvil.",
+      "Tally es una plataforma fintech que te permite gestionar cuentas digitales, realizar transferencias, administrar tarjetas de débito y acceder a servicios financieros de manera 100% digital. El servicio se proporciona a través de nuestra aplicación web y móvil.",
   },
   {
     title: "3. Elegibilidad y Registro",
     content:
-      "Para utilizar TallyBank debes ser mayor de 18 años y contar con capacidad legal para celebrar contratos. Al registrarte, declara que la información proporcionada es veraz, completa y actualizada. TallyBank se reserva el derecho de verificar tu identidad y rechazar registros que no cumplan con los requisitos establecidos.",
+      "Para utilizar Tally debes ser mayor de 18 años y contar con capacidad legal para celebrar contratos. Al registrarte, declara que la información proporcionada es veraz, completa y actualizada. Tally se reserva el derecho de verificar tu identidad y rechazar registros que no cumplan con los requisitos establecidos.",
   },
   {
     title: "4. Seguridad de la Cuenta",
     content:
-      "Eres responsable de mantener la confidencialidad de tus credenciales de acceso (correo electrónico y contraseña). Cualquier actividad realizada desde tu cuenta será considerada como realizada por ti. Notifica de inmediato a TallyBank ante cualquier uso no autorizado de tu cuenta.",
+      "Eres responsable de mantener la confidencialidad de tus credenciales de acceso (correo electrónico y contraseña). Cualquier actividad realizada desde tu cuenta será considerada como realizada por ti. Notifica de inmediato a Tally ante cualquier uso no autorizado de tu cuenta.",
   },
   {
     title: "5. Transacciones y Transferencias",
     content:
-      "Todas las transacciones realizadas a través de la plataforma son definitivas e irreversibles, salvo en los casos previstos por la ley aplicable. TallyBank no se hace responsable por errores en los datos ingresados por el usuario al realizar una transferencia. Los tiempos de procesamiento pueden variar según el tipo de transacción y la entidad receptora.",
+      "Todas las transacciones realizadas a través de la plataforma son definitivas e irreversibles, salvo en los casos previstos por la ley aplicable. Tally no se hace responsable por errores en los datos ingresados por el usuario al realizar una transferencia. Los tiempos de procesamiento pueden variar según el tipo de transacción y la entidad receptora.",
   },
   {
     title: "6. Tarjetas y Pagos",
     content:
-      "Las tarjetas digitales emitidas por TallyBank están sujetas a los términos específicos de uso que se proporcionarán al momento de su activación. Puedes congelar o descongelar tu tarjeta en cualquier momento desde la configuración de la aplicación. Los pagos internacionales pueden estar sujetos a comisiones adicionales según la política vigente.",
+      "Las tarjetas digitales emitidas por Tally están sujetas a los términos específicos de uso que se proporcionarán al momento de su activación. Puedes congelar o descongelar tu tarjeta en cualquier momento desde la configuración de la aplicación. Los pagos internacionales pueden estar sujetos a comisiones adicionales según la política vigente.",
   },
   {
     title: "7. Comisiones y Tarifas",
     content:
-      "TallyBank se compromete a informar de manera transparente todas las comisiones y tarifas asociadas a sus servicios. Las comisiones vigentes estarán disponibles en la sección de Configuración de la aplicación. TallyBank se reserva el derecho de modificar las tarifas con un aviso previo de al menos 30 días.",
+      "Tally se compromete a informar de manera transparente todas las comisiones y tarifas asociadas a sus servicios. Las comisiones vigentes estarán disponibles en la sección de Configuración de la aplicación. Tally se reserva el derecho de modificar las tarifas con un aviso previo de al menos 30 días.",
   },
   {
     title: "8. Protección de Datos Personales",
     content:
-      "TallyBank trata tus datos personales conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México) y las regulaciones aplicables. Tus datos serán utilizados exclusivamente para la prestación del servicio, verificación de identidad, cumplimiento normativo y mejora de la experiencia. No compartimos tu información con terceros sin tu consentimiento, salvo obligación legal.",
+      "Tally trata tus datos personales conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares y las regulaciones aplicables. Tus datos serán utilizados exclusivamente para la prestación del servicio, verificación de identidad, cumplimiento normativo y mejora de la experiencia. No compartimos tu información con terceros sin tu consentimiento, salvo obligación legal.",
   },
   {
-    title: "9. Verificación de Identidad (KYC)",
+    title: "9. Uso Prohibido",
     content:
-      "Como parte del cumplimiento normativo, TallyBank podrá solicitar documentación adicional para verificar tu identidad (proceso Know Your Customer). El acceso a ciertos servicios podrá estar condicionado a la completación satisfactoria del proceso de verificación KYC.",
+      "Está prohibido utilizar la plataforma para actividades ilícitas, lavado de dinero, financiamiento al terrorismo, fraude o cualquier actividad que contravenga la ley. Tally monitorea las transacciones para detectar operaciones inusuales y podrá bloquear o cerrar cuentas que presenten sospechas fundadas.",
   },
   {
-    title: "10. Uso Prohibido",
+    title: "10. Responsabilidad y Limitaciones",
     content:
-      "Está prohibido utilizar la plataforma para actividades ilícitas, lavado de dinero, financiamiento al terrorismo, fraude o cualquier actividad que contravenga la ley. TallyBank monitorea las transacciones para detectar operaciones inusuales y podrá bloquear o cerrar cuentas que presenten sospechas fundadas.",
+      "Tally no será responsable por daños indirectos, pérdidas de beneficios o perjuicios derivados del uso de la plataforma, interrupciones del servicio por mantenimiento o causas de fuerza mayor. La responsabilidad máxima de Tally se limitará al monto de las comisiones pagadas por el usuario en los últimos 6 meses.",
   },
   {
-    title: "11. Responsabilidad y Limitaciones",
+    title: "11. Modificaciones",
     content:
-      "TallyBank no será responsable por daños indirectos, pérdidas de beneficios o perjuicios derivados del uso de la plataforma, interrupciones del servicio por mantenimiento o causas de fuerza mayor. La responsabilidad máxima de TallyBank se limitará al monto de las comisiones pagadas por el usuario en los últimos 6 meses.",
+      "Tally se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones serán notificadas a través de la aplicación o por correo electrónico con al menos 15 días de anticipación. El uso continuado de la plataforma después de la vigencia de las modificaciones constituirá la aceptación de las mismas.",
   },
   {
-    title: "12. Modificaciones",
+    title: "12. Terminación del Servicio",
     content:
-      "TallyBank se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones serán notificadas a través de la aplicación o por correo electrónico con al menos 15 días de anticipación. El uso continuado de la plataforma después de la vigencia de las modificaciones constituirá la aceptación de las mismas.",
+      "Tally podrá suspender o cancelar cuentas que incumplan estos términos, previa notificación al usuario. Los fondos disponibles serán transferidos a la cuenta bancaria registrada dentro de los 10 días hábiles siguientes a la cancelación.",
   },
   {
-    title: "13. Terminación del Servicio",
+    title: "13. Contacto",
     content:
-      "Puedes solicitar la cancelación de tu cuenta en cualquier momento a través de Soporte 24/7. TallyBank podrá suspender o cancelar cuentas que incumplan estos términos, previa notificación al usuario. Los fondos disponibles serán transferidos a la cuenta bancaria registrada dentro de los 10 días hábiles siguientes a la cancelación.",
-  },
-  {
-    title: "14. Ley Aplicable y Jurisdicción",
-    content:
-      "Estos Términos y Condiciones se rigen por las leyes de los Estados Unidos Mexicanos. Cualquier controversia será sometida a los tribunales competentes de la Ciudad de México, renunciando expresamente a cualquier otro fuero que pudiera corresponderles por razón de domicilio presente o futuro.",
-  },
-  {
-    title: "15. Contacto",
-    content:
-      "Para cualquier consulta sobre estos Términos y Condiciones, puedes contactarnos a través de Soporte 24/7 disponible en la sección de Perfil de la aplicación o escribir a soporte@tallybank.com.",
+      "Para cualquier consulta sobre estos Términos y Condiciones, puedes contactarnos a través de Soporte disponible en la sección de Perfil de la aplicación o escribir a mrmarinmfl@gmail.com",
   },
 ];
 
@@ -103,7 +93,7 @@ export function TermsAndConditionsPage() {
             <h1 className="text-lg font-bold text-text-primary">
               Términos y Condiciones
             </h1>
-            <p className="text-xs text-text-muted">TallyBank v1.0</p>
+            <p className="text-xs text-text-muted">Tally | Digital Bank</p>
           </div>
         </div>
       </header>
@@ -115,8 +105,8 @@ export function TermsAndConditionsPage() {
           <p className="text-sm text-text-secondary leading-relaxed">
             Última actualización: 22 de agosto de 2026. Estos Términos y
             Condiciones regulan el uso de la plataforma y servicios ofrecidos
-            por <span className="text-primary font-semibold">TallyBank</span>.
-            Al crear una cuenta, aceptas estos términos en su totalidad.
+            por <span className="text-primary font-semibold">Tally</span>. Al
+            crear una cuenta, aceptas estos términos en su totalidad.
           </p>
         </GlassCard>
 
@@ -135,9 +125,9 @@ export function TermsAndConditionsPage() {
         {/* Footer */}
         <GlassCard className="p-5 mt-8">
           <p className="text-xs text-text-muted text-center leading-relaxed">
-            Al continuar usando TallyBank, confirmas que has leído, comprendido
-            y aceptado estos Términos y Condiciones. Si tienes dudas, contáctate
-            con Soporte 24/7.
+            Al continuar usando Tally, confirmas que has leído, comprendido y
+            aceptado estos Términos y Condiciones. Si tienes dudas, contáctate
+            con Soporte mrmarinmfl@gmail.com.
           </p>
         </GlassCard>
 

@@ -46,7 +46,7 @@ export function RegisterPage() {
       });
       localStorage.setItem("token", response.token);
       setUser(response.user);
-      navigate("/inicio", { replace: true });
+      navigate("/bienvenida", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear cuenta");
     } finally {
