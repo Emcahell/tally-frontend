@@ -29,10 +29,14 @@ function maskAccountNumber(number: string): string {
   return `${masked}${visible}`;
 }
 
-export function BalanceCard() {
+interface BalanceCardProps {
+  balance: string;
+  accountNumber: string;
+}
+
+export function BalanceCard({ balance, accountNumber }: BalanceCardProps) {
+  const parsedBalance = parseFloat(balance) || 0;
   const [balanceVisible, setBalanceVisible] = useState(true);
-  const accountNumber = '1234567890123456';
-  const balance = 24850.40;
 
   return (
     <GlassCard glow className="p-6">
@@ -67,7 +71,7 @@ export function BalanceCard() {
       <div className="flex items-baseline gap-2 mb-2">
         <h2 className="text-3xl font-extrabold text-text-primary tracking-tight">
           {balanceVisible
-            ? `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+            ? `$${parsedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
             : '••••••'}
         </h2>
         <span className="text-sm text-text-muted font-medium">USD</span>

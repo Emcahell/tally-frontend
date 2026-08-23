@@ -16,6 +16,25 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface Card {
+  id: number;
+  masked_number: string;
+  cvv: string;
+  card_holder: string;
+  expiry_date: string;
+  card_type: string;
+  is_active: boolean;
+}
+
+export interface Account {
+  id: number;
+  account_number: string;
+  balance: string;
+  currency: string;
+  status: string;
+  cards: Card[];
+}
+
 export interface User {
   id: number;
   name: string;

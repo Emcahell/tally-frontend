@@ -3,6 +3,7 @@ import { Snowflake, Globe, Eye, EyeSlash, Warning } from "phosphor-react";
 import { Header } from "../../components/shared/layout/Header";
 import { BottomNav } from "../../components/shared/layout/BottomNav";
 import { BankCard } from "./components/BankCard";
+import { useAuth } from "../../hooks/useAuth";
 
 interface SettingCardProps {
   icon: React.ReactNode;
@@ -82,9 +83,13 @@ function SettingCard({
 }
 
 export function CardsPage() {
+  const { user, account } = useAuth();
   const [cardVisible, setCardVisible] = useState(false);
   const [frozen, setFrozen] = useState(false);
   const [international, setInternational] = useState(false);
+
+  const card = account?.cards?.[0];
+  const holderName = (card?.card_holder ?? user?.name ?? 'TALLY USER').toUpperCase();
 
   return (
     <div className="min-h-dvh relative">
@@ -100,10 +105,10 @@ export function CardsPage() {
           {/* Bank Card */}
           <div className="flex justify-center -mx-5 px-5 overflow-x-auto scrollbar-hide">
             <BankCard
-              cardNumber="4532 8721 0043 8842"
-              holderName="ALEX TURNER"
-              expiration="12/28"
-              cvv="842"
+              cardNumber={card?.masked_number ?? ''}
+              holderName={holderName}
+              expiration={card?.expiry_date ?? ''}
+              cvv={card?.cvv ?? ''}
               visible={cardVisible}
             />
           </div>

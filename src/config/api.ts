@@ -39,5 +39,16 @@ export async function api<T>(endpoint: string, options: RequestOptions = {}): Pr
     throw new Error(error.message || 'Error en la solicitud');
   }
 
-  return response.json();
+  const data = await response.json();
+  // Laravel API Resources wrap responses in { data: { ... } }
+  if (
+    data &&
+    typeof data === 'object' &&
+    !Array.isArray(data) &&
+    'data' in data &&
+    Object.keys(data).every((k) => ['data', 'links', 'meta'].includes(k))
+  ) {
+    return (data as { data: T }).data;
+  }
+  return data as T;
 }

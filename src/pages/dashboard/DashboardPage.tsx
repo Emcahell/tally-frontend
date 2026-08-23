@@ -1,8 +1,10 @@
 import { Header } from "../../components/shared/layout/Header";
 import { BalanceCard } from "./components/BalanceCard";
 import { RecentTransactions } from "./components/RecentTransactions";
+import { useAuth } from "../../hooks/useAuth";
 
 export function DashboardPage() {
+  const { account } = useAuth();
   return (
     <div className="min-h-dvh relative overflow-x-hidden">
       {/* Glow background elements */}
@@ -16,7 +18,10 @@ export function DashboardPage() {
         <div className="h-26 w-full" />
 
         <main className="px-5 space-y-6 pb-20">
-          <BalanceCard />
+          <BalanceCard
+            balance={account?.balance ?? "0"}
+            accountNumber={account?.account_number ?? ""}
+          />
           <RecentTransactions />
         </main>
       </div>
