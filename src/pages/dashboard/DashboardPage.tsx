@@ -1,10 +1,21 @@
+import { useCallback } from "react";
 import { Header } from "../../components/shared/layout/Header";
 import { BalanceCard } from "./components/BalanceCard";
 import { RecentTransactions } from "./components/RecentTransactions";
 import { useAuth } from "../../hooks/useAuth";
+import { getAccount } from "../../services/account.service";
 
 export function DashboardPage() {
-  const { account } = useAuth();
+  const { account, setAccount } = useAuth();
+
+  const handleRefresh = useCallback(async () => {
+    try {
+      const updated = await getAccount();
+      setAccount(updated);
+    } catch {
+      // silently fail
+    }
+  }, [setAccount]);
   return (
     <div className="min-h-dvh relative overflow-x-hidden">
       {/* Glow background elements */}
@@ -21,6 +32,7 @@ export function DashboardPage() {
           <BalanceCard
             balance={account?.balance ?? "0"}
             accountNumber={account?.account_number ?? ""}
+            onRefresh={handleRefresh}
           />
           <RecentTransactions />
         </main>
