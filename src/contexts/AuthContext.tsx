@@ -19,21 +19,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      try {
-        const [me, acc] = await Promise.all([getMe(), getAccount()]);
-        if (!cancelled) {
-          setUser(me);
-          setAccount(acc);
-        }
-      } catch {
-        localStorage.removeItem('token');
-        if (!cancelled) {
-          setUser(null);
-          setAccount(null);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+      // Fire both requests in parallel, but handle each independently
+      // so state updates as soon as each one resolves.
+      const mePromise = getMe();
+      const accPromise = getAccount();
+
+      mePromise
+        .then(me => { if (!cancelled) setUser(me); })
+        .catch(() => {
+          localStorage.removeItem('token');
+          if (!cancelled) setUser(null);
+        });
+
+      accPromise
+        .then(acc => { if (!cancelled) setAccount(acc); })
+        .catch(() => { if (!cancelled) setAccount(null); });
+
+      await Promise.allSettled([mePromise, accPromise]);
+
+      if (!cancelled) setLoading(false);
     }
 
     fetchUser();
@@ -42,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, account, loading, setUser }}>
+    <AuthContext.Provider value={{ user, account, loading, setUser, setAccount }}>
       {children}
     </AuthContext.Provider>
   );

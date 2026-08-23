@@ -4,12 +4,13 @@ import { Envelope, Lock, Eye, EyeSlash } from "phosphor-react";
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { login } from "../../services/auth.service";
+import { getAccount } from "../../services/account.service";
 import { useAuth } from "../../hooks/useAuth";
 import { Logo } from "../../components/shared/Logo";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, setAccount } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +26,12 @@ export function LoginPage() {
       const response = await login({ email, password });
       localStorage.setItem("token", response.token);
       setUser(response.user);
+
+      // Fetch account data immediately so balance and card info appear right away
+      getAccount()
+        .then(acc => setAccount(acc))
+        .catch(() => {});
+
       navigate("/inicio", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
