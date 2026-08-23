@@ -18,6 +18,7 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -217,10 +218,50 @@ export function RegisterPage() {
             </div>
           </div>
 
+          {/* Terms checkbox */}
+          <div className="flex items-start gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setAcceptedTerms(!acceptedTerms)}
+              className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                acceptedTerms
+                  ? "bg-primary border-primary"
+                  : "border-border hover:border-primary/50"
+              }`}
+              aria-label="Aceptar términos y condiciones"
+            >
+              {acceptedTerms && (
+                <svg
+                  className="w-3 h-3 text-bg-deep"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
+            </button>
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Acepto los{" "}
+              <Link
+                to="/terminos"
+                className="text-primary font-semibold hover:text-primary-accent transition-colors underline underline-offset-2"
+              >
+                Términos y Condiciones
+              </Link>
+              {" "}y la Política de Privacidad de TallyBank
+            </p>
+          </div>
+
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
