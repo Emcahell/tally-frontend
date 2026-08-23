@@ -1,0 +1,175 @@
+import { useState } from "react";
+import { Snowflake, Globe, Eye, EyeSlash, Warning } from "phosphor-react";
+import { Header } from "../../components/shared/layout/Header";
+import { BottomNav } from "../../components/shared/layout/BottomNav";
+import { BankCard } from "./components/BankCard";
+
+interface SettingCardProps {
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  active: boolean;
+  danger?: boolean;
+  onClick: () => void;
+}
+
+function SettingCard({
+  icon,
+  label,
+  description,
+  active,
+  danger,
+  onClick,
+}: SettingCardProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
+        danger
+          ? active
+            ? "bg-error/10 border-error/30"
+            : "bg-bg-card border-border hover:border-error/20"
+          : active
+            ? "bg-primary/10 border-primary/30"
+            : "bg-bg-card border-border hover:border-primary/20"
+      }`}
+    >
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+          danger
+            ? "bg-error/15 text-error"
+            : active
+              ? "bg-primary/15 text-primary"
+              : "bg-bg-surface text-text-secondary"
+        }`}
+      >
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p
+          className={`text-sm font-semibold ${danger && active ? "text-error" : "text-text-primary"}`}
+        >
+          {label}
+        </p>
+        <p className="text-xs text-text-muted mt-0.5">{description}</p>
+      </div>
+      {/* Toggle */}
+      <div
+        className={`w-11 h-6 rounded-full flex items-center transition-colors ${
+          danger
+            ? active
+              ? "bg-error"
+              : "bg-bg-surface"
+            : active
+              ? "bg-primary"
+              : "bg-primary/12"
+        }`}
+      >
+        <div
+          className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
+            danger
+              ? active
+                ? "translate-x-[22px]"
+                : "translate-x-[2px]"
+              : active
+                ? "translate-x-[22px]"
+                : "translate-x-[2px]"
+          }`}
+        />
+      </div>
+    </button>
+  );
+}
+
+export function CardsPage() {
+  const [cardVisible, setCardVisible] = useState(false);
+  const [frozen, setFrozen] = useState(false);
+  const [international, setInternational] = useState(false);
+
+  return (
+    <div className="min-h-dvh relative">
+      {/* Glow backgrounds */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
+
+      <Header />
+
+      <div className="relative z-10 max-w-lg mx-auto pb-24">
+        <div className="h-28" />
+
+        <main className="px-5 space-y-6">
+          {/* Bank Card */}
+          <div className="flex justify-center -mx-5 px-5 overflow-x-auto scrollbar-hide">
+            <BankCard
+              cardNumber="4532 8721 0043 8842"
+              holderName="ALEX TURNER"
+              expiration="12/28"
+              cvv="842"
+              visible={cardVisible}
+            />
+          </div>
+
+          {/* Frozen warning */}
+          {frozen && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-info/10 border border-info/20">
+              <Warning size={18} className="text-info shrink-0" weight="fill" />
+              <p className="text-xs text-info font-medium">
+                Tu tarjeta está congelada. No se procesarán transacciones.
+              </p>
+            </div>
+          )}
+
+          {/* Security Settings */}
+          <div>
+            <h3 className="text-sm font-bold text-text-primary mb-3">
+              Seguridad
+            </h3>
+            <div className="space-y-3">
+              <SettingCard
+                icon={<Snowflake size={20} weight="bold" />}
+                label="Congelar tarjeta"
+                description={
+                  frozen
+                    ? "Tarjeta desactivada temporalmente"
+                    : "Bloquea transacciones temporalmente"
+                }
+                active={frozen}
+                danger={frozen}
+                onClick={() => setFrozen(!frozen)}
+              />
+              <SettingCard
+                icon={<Globe size={20} weight="bold" />}
+                label="Pagos internacionales"
+                description={
+                  international
+                    ? "Compras en el exterior activadas"
+                    : "Compras fuera del país desactivadas"
+                }
+                active={international}
+                onClick={() => setInternational(!international)}
+              />
+              <SettingCard
+                icon={
+                  cardVisible ? (
+                    <EyeSlash size={20} weight="bold" />
+                  ) : (
+                    <Eye size={20} weight="bold" />
+                  )
+                }
+                label={cardVisible ? "Ocultar datos" : "Mostrar datos"}
+                description={
+                  cardVisible
+                    ? "Datos visibles en pantalla"
+                    : "Datos ocultos por seguridad"
+                }
+                active={cardVisible}
+                onClick={() => setCardVisible(!cardVisible)}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+}
