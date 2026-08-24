@@ -5,6 +5,8 @@ import { TermsAndConditionsPage } from './pages/terms/TermsAndConditionsPage';
 import { WelcomePage } from './pages/welcome/WelcomePage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { PersonalDataPage } from './pages/profile/PersonalDataPage';
+import { InformationPage } from './pages/profile/InformationPage';
 import { CardsPage } from './pages/cards/CardsPage';
 import { BottomNav } from './components/shared/layout/BottomNav';
 import { ProtectedRoute } from './routes/ProtectedRoute';
@@ -48,6 +50,22 @@ function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/perfil/datos-personales"
+        element={
+          <ProtectedRoute>
+            <PersonalDataPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/perfil/informacion"
+        element={
+          <ProtectedRoute>
+            <InformationPage />
           </ProtectedRoute>
         }
       />

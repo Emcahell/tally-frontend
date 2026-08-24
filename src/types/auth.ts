@@ -45,3 +45,21 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
+
+export interface ProfileAccount {
+  id: number;
+  account_number: string;
+  balance: number;
+  currency: string;
+  status: string;
+}
+
+export interface ProfileData {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  photo: string | null;
+  account_number: string;
+  account: ProfileAccount;
+}

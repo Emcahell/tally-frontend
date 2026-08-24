@@ -1,9 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Bell } from 'phosphor-react';
-import { Avatar } from '../../ui/Avatar';
 import { IconButton } from '../../ui/IconButton';
 import { Skeleton } from '../../ui/Skeleton';
 import { useAuth } from '../../../hooks/useAuth';
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(w => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
 
 export function Header() {
   const { user, loading } = useAuth();
@@ -11,11 +20,19 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center justify-between max-w-lg mx-auto">
       <Link to="/perfil" className="flex items-center gap-3">
-        <Avatar
-          src={user?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256'}
-          alt={user?.name || 'Usuario'}
-          showStatus
-        />
+        {user?.photo ? (
+          <img
+            src={user.photo}
+            alt={user.name || 'Usuario'}
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/50"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
+            <span className="text-sm font-bold text-primary">
+              {loading ? '' : getInitials(user?.name || 'U')}
+            </span>
+          </div>
+        )}
         <div>
           <p className="text-xs text-text-muted font-medium">Bienvenido,</p>
           {loading && !user ? (

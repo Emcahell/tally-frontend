@@ -1,24 +1,25 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   User,
   ShieldCheck,
-  Question,
+  Info,
   SignOut,
   CaretRight,
   CheckCircle,
   CaretLeft,
-} from 'phosphor-react';
-import { Avatar } from '../../components/ui/Avatar';
-import { GlassCard } from '../../components/ui/GlassCard';
-import { Skeleton } from '../../components/ui/Skeleton';
-import { useAuth } from '../../hooks/useAuth';
-import { logout } from '../../services/auth.service';
+} from "phosphor-react";
+
+import { GlassCard } from "../../components/ui/GlassCard";
+import { Skeleton } from "../../components/ui/Skeleton";
+import { useAuth } from "../../hooks/useAuth";
+import { logout } from "../../services/auth.service";
 
 interface MenuItem {
   icon: React.ElementType;
   label: string;
   color?: string;
   onClick?: () => void;
+  chevron?: boolean;
 }
 
 export function ProfilePage() {
@@ -31,18 +32,29 @@ export function ProfilePage() {
     } catch {
       // ignore error, clear locally anyway
     }
-    localStorage.removeItem('token');
-    localStorage.removeItem('cache_user');
-    localStorage.removeItem('cache_account');
+    localStorage.removeItem("token");
+    localStorage.removeItem("cache_user");
+    localStorage.removeItem("cache_account");
+    localStorage.removeItem("cache_profile");
     setUser(null);
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   }
 
   const menuItems: MenuItem[] = [
-    { icon: User, label: 'Datos Personales' },
-    { icon: ShieldCheck, label: 'Seguridad & Biometría' },
-    { icon: Question, label: 'Soporte 24/7' },
-    { icon: SignOut, label: 'Cerrar Sesión', color: 'text-error', onClick: handleLogout },
+    {
+      icon: User,
+      label: "Datos Personales",
+      onClick: () => navigate("/perfil/datos-personales"),
+      chevron: true,
+    },
+    { icon: ShieldCheck, label: "Seguridad & Biometría", chevron: true },
+    { icon: Info, label: "Información", onClick: () => navigate("/perfil/informacion"), chevron: true },
+    {
+      icon: SignOut,
+      label: "Cerrar Sesión",
+      color: "text-error",
+      onClick: handleLogout,
+    },
   ];
 
   return (
@@ -73,12 +85,25 @@ export function ProfilePage() {
 
             {/* Profile Info */}
             <div className="px-6 pb-6 -mt-12 relative z-10 flex flex-col items-center text-center">
-              <Avatar
-                src={user?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256'}
-                alt={user?.name || 'Usuario'}
-                size="lg"
-                showStatus
-              />
+              {user?.photo ? (
+                <img
+                  src={user.photo}
+                  alt={user.name || "Usuario"}
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/50"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
+                  <span className="text-lg font-bold text-primary">
+                    {(user?.name || "U")
+                      .split(" ")
+                      .map((w) => w[0])
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </span>
+                </div>
+              )}
               {loading && !user ? (
                 <div className="mt-3 space-y-2 flex flex-col items-center">
                   <Skeleton className="h-5 w-36" />
@@ -87,16 +112,20 @@ export function ProfilePage() {
               ) : (
                 <>
                   <h2 className="text-lg font-bold text-text-primary mt-3">
-                    {user?.name || 'Usuario'}
+                    {user?.name || "Usuario"}
                   </h2>
                   <p className="text-sm text-text-muted mt-0.5">
-                    {user?.email || ''}
+                    {user?.email || ""}
                   </p>
 
                   {/* KYC Badge */}
                   {user?.email_verified_at && (
                     <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                      <CheckCircle size={14} weight="fill" className="text-success" />
+                      <CheckCircle
+                        size={14}
+                        weight="fill"
+                        className="text-success"
+                      />
                       <span className="text-xs font-semibold text-success">
                         Cuenta Verificada (KYC)
                       </span>
@@ -118,25 +147,23 @@ export function ProfilePage() {
                   key={item.label}
                   onClick={item.onClick}
                   className={`w-full flex items-center gap-3 px-5 py-4 text-left transition-colors ${
-                    isLogout
-                      ? 'hover:bg-error/5'
-                      : 'hover:bg-white/[0.02]'
+                    isLogout ? "hover:bg-error/5" : "hover:bg-white/[0.02]"
                   }`}
                 >
                   <Icon
                     size={20}
                     weight="regular"
-                    className={item.color || 'text-text-secondary'}
+                    className={item.color || "text-text-secondary"}
                   />
                   <span
                     className={`flex-1 text-sm font-medium ${
-                      item.color || 'text-text-primary'
+                      item.color || "text-text-primary"
                     }`}
                   >
                     {item.label}
                   </span>
-                  {!isLogout && (
-                    <CaretRight size={16} weight="fill" className="text-text-muted" />
+                  {item.chevron && (
+                    <CaretRight size={16} className="text-white font-bold" />
                   )}
                 </button>
               );
