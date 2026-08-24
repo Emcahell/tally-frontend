@@ -1,6 +1,6 @@
 import logo from "../../assets/images/logo-tally.svg";
 
-export function Logo() {
+export function Isotipo() {
   return (
     <div>
       <img

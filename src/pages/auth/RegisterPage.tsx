@@ -5,7 +5,7 @@ import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { register } from "../../services/auth.service";
 import { useAuth } from "../../hooks/useAuth";
-import { Logo } from "../../components/shared/Logo";
+import { Isotipo } from "../../components/shared/Isotipo";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export function RegisterPage() {
       {/* Logo / Brand */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mx-auto mb-4">
-          <Logo />
+          <Isotipo />
         </div>
         <h1 className="text-2xl font-extrabold text-text-primary tracking-tight">
           Crear cuenta
@@ -253,8 +253,8 @@ export function RegisterPage() {
                 className="text-primary font-semibold hover:text-primary-accent transition-colors underline underline-offset-2"
               >
                 Términos y Condiciones
-              </Link>
-              {" "}y la Política de Privacidad de TallyBank
+              </Link>{" "}
+              y la Política de Privacidad de TallyBank
             </p>
           </div>
 

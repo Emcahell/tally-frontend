@@ -6,7 +6,7 @@ import { GlassCard } from "../../components/ui/GlassCard";
 import { login } from "../../services/auth.service";
 import { getAccount } from "../../services/account.service";
 import { useAuth } from "../../hooks/useAuth";
-import { Logo } from "../../components/shared/Logo";
+import { Imagotipo } from "../../components/shared/Imagotipo";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export function LoginPage() {
 
       // Fetch account data immediately so balance and card info appear right away
       getAccount()
-        .then(acc => setAccount(acc))
+        .then((acc) => setAccount(acc))
         .catch(() => {});
 
       navigate("/inicio", { replace: true });
@@ -45,8 +45,7 @@ export function LoginPage() {
       {/* Logo / Brand */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mx-auto mb-4">
-          <Logo />
-          <h1 className="text-3xl font-extrabold text-primary ml-2">Tally</h1>
+          <Imagotipo />
         </div>
         <h2 className="text-xl font-semibold text-text-primary tracking-tight">
           Tu dinero <span className="text-primary">Tally</span> como es
