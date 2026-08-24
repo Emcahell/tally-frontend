@@ -9,8 +9,13 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
   return api<AuthResponse>('/register', { method: 'POST', json: data });
 }
 
+interface MeResponse {
+  user: User;
+}
+
 export async function getMe(): Promise<User> {
-  return api<User>('/me');
+  const response = await api<MeResponse>('/me');
+  return response.user;
 }
 
 export async function logout(): Promise<void> {

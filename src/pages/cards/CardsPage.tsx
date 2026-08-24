@@ -3,6 +3,7 @@ import { Snowflake, Globe, Eye, EyeSlash, Warning } from "phosphor-react";
 import { Header } from "../../components/shared/layout/Header";
 import { BottomNav } from "../../components/shared/layout/BottomNav";
 import { BankCard } from "./components/BankCard";
+import { Skeleton } from "../../components/ui/Skeleton";
 import { useAuth } from "../../hooks/useAuth";
 
 interface SettingCardProps {
@@ -83,13 +84,14 @@ function SettingCard({
 }
 
 export function CardsPage() {
-  const { user, account } = useAuth();
+  const { user, account, loading } = useAuth();
   const [cardVisible, setCardVisible] = useState(false);
   const [frozen, setFrozen] = useState(false);
   const [international, setInternational] = useState(false);
 
   const card = account?.cards?.[0];
   const holderName = (card?.card_holder ?? user?.name ?? 'TALLY USER').toUpperCase();
+  const showCardSkeleton = loading && !card;
 
   return (
     <div className="min-h-dvh relative">
@@ -104,13 +106,39 @@ export function CardsPage() {
         <main className="px-5 space-y-6">
           {/* Bank Card */}
           <div className="flex justify-center -mx-5 px-5 overflow-x-auto scrollbar-hide">
-            <BankCard
-              cardNumber={card?.masked_number ?? ''}
-              holderName={holderName}
-              expiration={card?.expiry_date ?? ''}
-              cvv={card?.cvv ?? ''}
-              visible={cardVisible}
-            />
+            {showCardSkeleton ? (
+              <div className="min-w-[280px] sm:min-w-[320px] h-[180px] rounded-2xl p-5 flex flex-col justify-between border border-white/20 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-900">
+                <div className="flex justify-between items-start z-10">
+                  <Skeleton className="h-5 w-24 bg-white/20" />
+                  <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+                </div>
+                <div className="z-10 space-y-3">
+                  <Skeleton className="h-3 w-48 bg-white/20" />
+                  <div className="flex gap-6">
+                    <div className="space-y-1">
+                      <Skeleton className="h-2 w-12 bg-white/20" />
+                      <Skeleton className="h-3 w-20 bg-white/20" />
+                    </div>
+                    <div className="space-y-1">
+                      <Skeleton className="h-2 w-8 bg-white/20" />
+                      <Skeleton className="h-3 w-10 bg-white/20" />
+                    </div>
+                    <div className="space-y-1">
+                      <Skeleton className="h-2 w-8 bg-white/20" />
+                      <Skeleton className="h-3 w-8 bg-white/20" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <BankCard
+                cardNumber={card?.masked_number ?? ''}
+                holderName={holderName}
+                expiration={card?.expiry_date ?? ''}
+                cvv={card?.cvv ?? ''}
+                visible={cardVisible}
+              />
+            )}
           </div>
 
           {/* Frozen warning */}

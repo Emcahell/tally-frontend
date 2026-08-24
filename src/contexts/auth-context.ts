@@ -5,6 +5,7 @@ export interface AuthContextType {
   user: User | null;
   account: Account | null;
   loading: boolean;
+  isRefreshing: boolean;
   setUser: (user: User | null) => void;
   setAccount: (account: Account | null) => void;
 }

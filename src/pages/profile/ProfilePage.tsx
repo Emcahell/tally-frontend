@@ -10,6 +10,7 @@ import {
 } from 'phosphor-react';
 import { Avatar } from '../../components/ui/Avatar';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../hooks/useAuth';
 import { logout } from '../../services/auth.service';
 
@@ -22,7 +23,7 @@ interface MenuItem {
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
+  const { user, loading, setUser } = useAuth();
 
   async function handleLogout() {
     try {
@@ -31,6 +32,8 @@ export function ProfilePage() {
       // ignore error, clear locally anyway
     }
     localStorage.removeItem('token');
+    localStorage.removeItem('cache_user');
+    localStorage.removeItem('cache_account');
     setUser(null);
     navigate('/login', { replace: true });
   }
@@ -76,21 +79,30 @@ export function ProfilePage() {
                 size="lg"
                 showStatus
               />
-              <h2 className="text-lg font-bold text-text-primary mt-3">
-                {user?.name || 'Usuario'}
-              </h2>
-              <p className="text-sm text-text-muted mt-0.5">
-                {user?.email || ''}
-              </p>
-
-              {/* KYC Badge */}
-              {user?.email_verified_at && (
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                  <CheckCircle size={14} weight="fill" className="text-success" />
-                  <span className="text-xs font-semibold text-success">
-                    Cuenta Verificada (KYC)
-                  </span>
+              {loading && !user ? (
+                <div className="mt-3 space-y-2 flex flex-col items-center">
+                  <Skeleton className="h-5 w-36" />
+                  <Skeleton className="h-4 w-48" />
                 </div>
+              ) : (
+                <>
+                  <h2 className="text-lg font-bold text-text-primary mt-3">
+                    {user?.name || 'Usuario'}
+                  </h2>
+                  <p className="text-sm text-text-muted mt-0.5">
+                    {user?.email || ''}
+                  </p>
+
+                  {/* KYC Badge */}
+                  {user?.email_verified_at && (
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
+                      <CheckCircle size={14} weight="fill" className="text-success" />
+                      <span className="text-xs font-semibold text-success">
+                        Cuenta Verificada (KYC)
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </GlassCard>

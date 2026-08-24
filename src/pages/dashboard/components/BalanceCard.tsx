@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowClockwise, Eye, EyeSlash, ShareNetwork, X } from 'phosphor-react';
 import { GlassCard } from '../../../components/ui/GlassCard';
+import { Skeleton } from '../../../components/ui/Skeleton';
 import type { ReactNode } from 'react';
 
 interface ActionButtonProps {
@@ -39,9 +40,10 @@ interface BalanceCardProps {
   balance: string;
   accountNumber: string;
   onRefresh?: () => void;
+  balanceLoading?: boolean;
 }
 
-export function BalanceCard({ balance, accountNumber, onRefresh }: BalanceCardProps) {
+export function BalanceCard({ balance, accountNumber, onRefresh, balanceLoading = false }: BalanceCardProps) {
   const parsedBalance = parseFloat(balance) || 0;
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -102,11 +104,15 @@ export function BalanceCard({ balance, accountNumber, onRefresh }: BalanceCardPr
 
         {/* Balance Amount */}
         <div className="flex items-baseline gap-2 mb-2">
-          <h2 className="text-3xl font-extrabold text-text-primary tracking-tight">
-            {balanceVisible
-              ? `$${parsedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-              : '••••••'}
-          </h2>
+          {balanceLoading ? (
+            <Skeleton className="h-9 w-44" />
+          ) : (
+            <h2 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {balanceVisible
+                ? `$${parsedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                : '••••••'}
+            </h2>
+          )}
           <span className="text-sm text-text-muted font-medium">USD</span>
         </div>
 

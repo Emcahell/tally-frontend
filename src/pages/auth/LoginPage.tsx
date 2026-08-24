@@ -26,10 +26,14 @@ export function LoginPage() {
       const response = await login({ email, password });
       localStorage.setItem("token", response.token);
       setUser(response.user);
+      localStorage.setItem('cache_user', JSON.stringify(response.user));
 
       // Fetch account data immediately so balance and card info appear right away
       getAccount()
-        .then((acc) => setAccount(acc))
+        .then((acc) => {
+          setAccount(acc);
+          localStorage.setItem('cache_account', JSON.stringify(acc));
+        })
         .catch(() => {});
 
       navigate("/inicio", { replace: true });

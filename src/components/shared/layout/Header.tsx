@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { Bell } from 'phosphor-react';
 import { Avatar } from '../../ui/Avatar';
 import { IconButton } from '../../ui/IconButton';
+import { Skeleton } from '../../ui/Skeleton';
 import { useAuth } from '../../../hooks/useAuth';
 
 export function Header() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center justify-between max-w-lg mx-auto">
@@ -17,9 +18,13 @@ export function Header() {
         />
         <div>
           <p className="text-xs text-text-muted font-medium">Bienvenido,</p>
-          <h1 className="text-sm font-semibold text-text-primary tracking-wide">
-            {user?.name || 'Usuario'}
-          </h1>
+          {loading && !user ? (
+            <Skeleton className="h-4 w-28 mt-0.5" />
+          ) : (
+            <h1 className="text-sm font-semibold text-text-primary tracking-wide">
+              {user?.name || 'Usuario'}
+            </h1>
+          )}
         </div>
       </Link>
 
