@@ -18,7 +18,7 @@ export interface AuthResponse {
 
 export interface Card {
   id: number;
-  masked_number: string;
+  card_number: string;
   cvv: string;
   card_holder: string;
   expiry_date: string;

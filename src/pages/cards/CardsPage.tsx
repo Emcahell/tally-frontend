@@ -83,11 +83,32 @@ function SettingCard({
   );
 }
 
+function readBool(key: string, fallback: boolean): boolean {
+  try {
+    const v = localStorage.getItem(key);
+    return v !== null ? v === 'true' : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function CardsPage() {
   const { user, account, loading } = useAuth();
   const [cardVisible, setCardVisible] = useState(false);
-  const [frozen, setFrozen] = useState(false);
-  const [international, setInternational] = useState(false);
+  const [frozen, setFrozen] = useState(() => readBool('card_frozen', false));
+  const [international, setInternational] = useState(() => readBool('card_international', false));
+
+  function toggleFrozen() {
+    const next = !frozen;
+    setFrozen(next);
+    localStorage.setItem('card_frozen', String(next));
+  }
+
+  function toggleInternational() {
+    const next = !international;
+    setInternational(next);
+    localStorage.setItem('card_international', String(next));
+  }
 
   const card = account?.cards?.[0];
   const holderName = (card?.card_holder ?? user?.name ?? 'TALLY USER').toUpperCase();
@@ -132,7 +153,7 @@ export function CardsPage() {
               </div>
             ) : (
               <BankCard
-                cardNumber={card?.masked_number ?? ''}
+                cardNumber={card?.card_number ?? ''}
                 holderName={holderName}
                 expiration={card?.expiry_date ?? ''}
                 cvv={card?.cvv ?? ''}
@@ -167,7 +188,7 @@ export function CardsPage() {
                 }
                 active={frozen}
                 danger={frozen}
-                onClick={() => setFrozen(!frozen)}
+                onClick={toggleFrozen}
               />
               <SettingCard
                 icon={<Globe size={20} weight="bold" />}
@@ -178,7 +199,7 @@ export function CardsPage() {
                     : "Compras fuera del país desactivadas"
                 }
                 active={international}
-                onClick={() => setInternational(!international)}
+                onClick={toggleInternational}
               />
               <SettingCard
                 icon={

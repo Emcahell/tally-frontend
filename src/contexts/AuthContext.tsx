@@ -67,10 +67,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             saveCache(CACHE_USER_KEY, me);
           }
         })
-        .catch(() => {
-          localStorage.removeItem('token');
-          clearCache();
-          if (!cancelled) setUser(null);
+        .catch((err) => {
+          // Only clear session on 401 (token expired/invalid).
+          // Network errors or backend downtime should NOT log the user out.
+          const isAuth = err instanceof Error && err.message === 'Sesión expirada';
+          if (isAuth) {
+            clearCache();
+            if (!cancelled) setUser(null);
+          }
+          // For other errors (network, timeout), keep cached data visible
         });
 
       accPromise

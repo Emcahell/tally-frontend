@@ -45,7 +45,14 @@ interface BalanceCardProps {
 
 export function BalanceCard({ balance, accountNumber, onRefresh, balanceLoading = false }: BalanceCardProps) {
   const parsedBalance = parseFloat(balance) || 0;
-  const [balanceVisible, setBalanceVisible] = useState(true);
+  const [balanceVisible, setBalanceVisible] = useState(() => {
+    try {
+      const v = localStorage.getItem('balance_visible');
+      return v !== null ? v === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
   const [showShareModal, setShowShareModal] = useState(false);
   const [cooldown, setCooldown] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -92,7 +99,11 @@ export function BalanceCard({ balance, accountNumber, onRefresh, balanceLoading 
                 : <Eye size={14} weight="bold" />
               }
               label={balanceVisible ? 'Ocultar' : 'Mostrar'}
-              onClick={() => setBalanceVisible(!balanceVisible)}
+              onClick={() => {
+                const next = !balanceVisible;
+                setBalanceVisible(next);
+                localStorage.setItem('balance_visible', String(next));
+              }}
             />
             <ActionButton
               icon={<ShareNetwork size={14} weight="bold" />}
