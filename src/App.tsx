@@ -9,6 +9,7 @@ import { PersonalDataPage } from './pages/profile/PersonalDataPage';
 import { InformationPage } from './pages/profile/InformationPage';
 import { SecurityPage } from './pages/profile/SecurityPage';
 import { CardsPage } from './pages/cards/CardsPage';
+import { SendMoneyPage } from './pages/transfer/SendMoneyPage';
 import { BottomNav } from './components/shared/layout/BottomNav';
 import {
   ProtectedRoute,
@@ -101,6 +102,14 @@ function App() {
         element={
           <ProtectedRoute>
             <CardsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/enviar"
+        element={
+          <ProtectedRoute>
+            <SendMoneyPage />
           </ProtectedRoute>
         }
       />

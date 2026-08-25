@@ -36,6 +36,35 @@ export const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
 /** Regex para contraseñas fuertes: al menos una letra y un número */
 export const PASSWORD_STRONG_REGEX = /^(?=.*[A-Za-z])(?=.*\d).+$/;
 
+/** Regex para montos monetarios: hasta 10 dígitos y 2 decimales */
+export const MONEY_REGEX = /^\d{1,10}(\.\d{1,2})?$/;
+
+/** Normaliza la entrada de un monto mientras el usuario escribe:
+ *  coma → punto, solo dígitos y un punto, máximo 2 decimales,
+ *  ceros a la izquierda redundantes eliminados ("05" → "5"). */
+export function normalizeMoneyInput(raw: string): string {
+  let v = raw.replace(/,/g, ".").replace(/[^\d.]/g, "");
+  const parts = v.split(".");
+  if (parts.length > 2) {
+    v = `${parts[0]}.${parts.slice(1).join("")}`;
+  }
+  const dotIndex = v.indexOf(".");
+  if (dotIndex !== -1) {
+    const decimals = v.slice(dotIndex + 1).slice(0, 2);
+    v = `${v.slice(0, dotIndex)}.${decimals}`;
+  }
+  v = v.replace(/^0+(?=\d)/, "");
+  return v;
+}
+
+/** Completa un monto válido a 2 decimales ("5" → "5.00").
+ *  Devuelve el valor original si no es un número válido. */
+export function formatAmountValue(value: string): string {
+  const parsed = parseFloat(value);
+  if (!value || Number.isNaN(parsed)) return value;
+  return parsed.toFixed(2);
+}
+
 /** Mensajes de error compartidos */
 export const VALIDATION_MESSAGES = {
   required: 'Este campo es obligatorio',
@@ -52,6 +81,11 @@ export const VALIDATION_MESSAGES = {
   passwordWeak: 'Debe contener al menos una letra y un número',
   passwordsDontMatch: 'Las contraseñas no coinciden',
   samePassword: 'La nueva contraseña debe ser diferente a la actual',
+  amountInvalid: 'Ingresa un monto válido (ej. 100.50)',
+  amountPositive: 'El monto debe ser mayor a $0.00',
+  amountExceedsBalance: (balance: string) =>
+    `No puedes enviar más de tu saldo disponible ($${balance})`,
+  balanceUnknown: 'No se pudo verificar tu saldo disponible',
 } as const;
 
 /**
@@ -165,6 +199,47 @@ export function confirmPasswordRules(getOriginal: () => string): FormRules {
 export function simpleTextRules(): FormRules {
   return {
     required: VALIDATION_MESSAGES.required,
+    validate: sqlSafeRule(),
+  };
+}
+
+/** Reglas para monto de dinero. `getBalance` devuelve el saldo disponible
+ *  del usuario o NaN si aún no se conoce. Acepta coma como decimal. */
+export function moneyAmountRules(getBalance: () => number): FormRules {
+  return {
+    required: 'Ingresa el monto a enviar',
+    validate: {
+      validFormat: (value) => {
+        const normalized = String(value).trim().replace(',', '.');
+        return MONEY_REGEX.test(normalized) || VALIDATION_MESSAGES.amountInvalid;
+      },
+      greaterThanZero: (value) =>
+        parseFloat(String(value).replace(',', '.')) > 0 ||
+        VALIDATION_MESSAGES.amountPositive,
+      withinBalance: (value) => {
+        const balance = getBalance();
+        if (Number.isNaN(balance)) return VALIDATION_MESSAGES.balanceUnknown;
+        const amount = parseFloat(String(value).replace(',', '.'));
+        if (amount <= balance) return true;
+        return VALIDATION_MESSAGES.amountExceedsBalance(
+          balance.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+        );
+      },
+    },
+    setValueAs: (v) => String(v).trim().replace(',', '.'),
+  };
+}
+
+/** Reglas para texto opcional (ej. concepto de transferencia) */
+export function optionalTextRules(maxLength = 100): FormRules {
+  return {
+    maxLength: {
+      value: maxLength,
+      message: `No puede exceder ${maxLength} caracteres`,
+    },
     validate: sqlSafeRule(),
   };
 }

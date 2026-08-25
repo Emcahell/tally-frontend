@@ -6,11 +6,11 @@ import {
   SignOut,
   CaretRight,
   CheckCircle,
-  CaretLeft,
 } from "phosphor-react";
 
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Skeleton } from "../../components/ui/Skeleton";
+import { PageHeader } from "../../components/shared/layout/PageHeader";
 import { useAuth } from "../../hooks/useAuth";
 import { logout } from "../../services/auth.service";
 
@@ -49,8 +49,18 @@ export function ProfilePage() {
       onClick: () => navigate("/perfil/datos-personales"),
       chevron: true,
     },
-    { icon: ShieldCheck, label: "Seguridad", onClick: () => navigate("/perfil/seguridad"), chevron: true },
-    { icon: Info, label: "Información", onClick: () => navigate("/perfil/informacion"), chevron: true },
+    {
+      icon: ShieldCheck,
+      label: "Seguridad",
+      onClick: () => navigate("/perfil/seguridad"),
+      chevron: true,
+    },
+    {
+      icon: Info,
+      label: "Información",
+      onClick: () => navigate("/perfil/informacion"),
+      chevron: true,
+    },
     {
       icon: SignOut,
       label: "Cerrar Sesión",
@@ -66,22 +76,13 @@ export function ProfilePage() {
 
       <div className="relative z-10 max-w-lg mx-auto pb-24">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-            aria-label="Volver"
-          >
-            <CaretLeft size={20} weight="bold" />
-          </button>
-          <h1 className="text-base font-bold text-text-primary">Mi Perfil</h1>
-        </header>
+        <PageHeader title="Mi Perfil" />
 
-        <main className="px-5 space-y-6">
+        <main className="px-5 space-y-6 mt-4">
           {/* Profile Card */}
           <GlassCard className="overflow-hidden">
             {/* Gradient Header */}
-            <div className="h-24 bg-gradient-to-br from-primary/30 via-accent-violet/20 to-accent-cyan/10 relative">
+            <div className="h-24 bg-gradient-to-br from-primary/30 via-accent-violet/20 to-accent-cyan/10 relative rounded-2xl">
               <div className="absolute inset-0 bg-gradient-to-t from-bg-card/80 to-transparent" />
             </div>
 
