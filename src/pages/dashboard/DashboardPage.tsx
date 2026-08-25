@@ -2,13 +2,11 @@ import { useCallback } from "react";
 import { Header } from "../../components/shared/layout/Header";
 import { BalanceCard } from "./components/BalanceCard";
 import { RecentTransactions } from "./components/RecentTransactions";
-import { GlassCard } from "../../components/ui/GlassCard";
-import { Skeleton } from "../../components/ui/Skeleton";
 import { useAuth } from "../../hooks/useAuth";
 import { getAccount } from "../../services/account.service";
 
 export function DashboardPage() {
-  const { account, loading, isRefreshing, setAccount } = useAuth();
+  const { account, loading, setAccount } = useAuth();
 
   const handleRefresh = useCallback(async () => {
     try {
@@ -20,7 +18,6 @@ export function DashboardPage() {
   }, [setAccount]);
 
   const showBalanceSkeleton = loading && !account;
-  const showAccountSkeleton = loading && !account;
 
   return (
     <div className="min-h-dvh relative overflow-x-hidden">
