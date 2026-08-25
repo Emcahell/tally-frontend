@@ -10,6 +10,7 @@ import { InformationPage } from './pages/profile/InformationPage';
 import { SecurityPage } from './pages/profile/SecurityPage';
 import { CardsPage } from './pages/cards/CardsPage';
 import { SendMoneyPage } from './pages/transfer/SendMoneyPage';
+import { TransfersHistoryPage } from './pages/transfers/TransfersHistoryPage';
 import { BottomNav } from './components/shared/layout/BottomNav';
 import {
   ProtectedRoute,
@@ -110,6 +111,14 @@ function App() {
         element={
           <ProtectedRoute>
             <SendMoneyPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/movimientos"
+        element={
+          <ProtectedRoute>
+            <TransfersHistoryPage />
           </ProtectedRoute>
         }
       />
