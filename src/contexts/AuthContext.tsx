@@ -43,6 +43,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [accountLoading, setAccountLoading] = useState(false);
+
+  /** Obtiene la cuenta del backend y la sincroniza con contexto + caché.
+   *  Centraliza el fetch para que login, registro y refresh compartan estado. */
+  async function refreshAccount(retries = 0): Promise<Account | null> {
+    setAccountLoading(true);
+    try {
+      const acc = await getAccount();
+      setAccount(acc);
+      saveCache(CACHE_ACCOUNT_KEY, acc);
+      return acc;
+    } catch {
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        return refreshAccount(retries - 1);
+      }
+      return null;
+    } finally {
+      setAccountLoading(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -129,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <AuthContext.Provider value={{ user, account, profile, loading, isRefreshing, setUser, setAccount, setProfile }}>
+    <AuthContext.Provider value={{ user, account, profile, loading, isRefreshing, accountLoading, setUser, setAccount, setProfile, refreshAccount }}>
       {children}
     </AuthContext.Provider>
   );

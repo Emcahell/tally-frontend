@@ -1,5 +1,16 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://tally-backend-ngfx.onrender.com/api';
 
+/** Error de API con código de estado HTTP para manejo fino en la UI */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 interface RequestOptions extends RequestInit {
   json?: unknown;
 }
@@ -7,6 +18,10 @@ interface RequestOptions extends RequestInit {
 function getToken(): string | null {
   return localStorage.getItem('token');
 }
+
+/** Endpoints donde un 401 es una respuesta de negocio esperada
+ *  (credenciales inválidas), no una sesión expirada */
+const AUTH_ENDPOINTS = ['/login', '/register'];
 
 export async function api<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { json, ...fetchOptions } = options;
@@ -28,15 +43,15 @@ export async function api<T>(endpoint: string, options: RequestOptions = {}): Pr
     body: json ? JSON.stringify(json) : fetchOptions.body,
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !AUTH_ENDPOINTS.includes(endpoint)) {
     localStorage.removeItem('token');
     window.location.href = '/login';
-    throw new Error('Sesión expirada');
+    throw new ApiError('Sesión expirada', 401);
   }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Error en la solicitud' }));
-    throw new Error(error.message || 'Error en la solicitud');
+    throw new ApiError(error.message || 'Error en la solicitud', response.status);
   }
 
   const data = await response.json();

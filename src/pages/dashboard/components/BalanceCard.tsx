@@ -129,9 +129,13 @@ export function BalanceCard({ balance, accountNumber, onRefresh, balanceLoading 
 
         {/* Account Number */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-text-secondary font-mono tracking-wider">
-            {maskAccountNumber(accountNumber)}
-          </span>
+          {balanceLoading ? (
+            <Skeleton className="h-4 w-32" />
+          ) : (
+            <span className="text-sm text-text-secondary font-mono tracking-wider">
+              {maskAccountNumber(accountNumber)}
+            </span>
+          )}
         </div>
       </GlassCard>
 

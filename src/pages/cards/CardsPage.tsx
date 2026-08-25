@@ -93,7 +93,7 @@ function readBool(key: string, fallback: boolean): boolean {
 }
 
 export function CardsPage() {
-  const { user, account, loading } = useAuth();
+  const { user, account, loading, isRefreshing, accountLoading } = useAuth();
   const [cardVisible, setCardVisible] = useState(false);
   const [frozen, setFrozen] = useState(() => readBool('card_frozen', false));
   const [international, setInternational] = useState(() => readBool('card_international', false));
@@ -112,7 +112,8 @@ export function CardsPage() {
 
   const card = account?.cards?.[0];
   const holderName = (card?.card_holder ?? user?.name ?? 'TALLY USER').toUpperCase();
-  const showCardSkeleton = loading && !card;
+  const showCardSkeleton =
+    (loading || isRefreshing || accountLoading) && !card;
 
   return (
     <div className="min-h-dvh relative">

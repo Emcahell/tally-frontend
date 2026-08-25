@@ -3,21 +3,22 @@ import { Header } from "../../components/shared/layout/Header";
 import { BalanceCard } from "./components/BalanceCard";
 import { RecentTransactions } from "./components/RecentTransactions";
 import { useAuth } from "../../hooks/useAuth";
-import { getAccount } from "../../services/account.service";
 
 export function DashboardPage() {
-  const { account, loading, setAccount } = useAuth();
+  const {
+    account,
+    loading,
+    isRefreshing,
+    accountLoading,
+    refreshAccount,
+  } = useAuth();
 
-  const handleRefresh = useCallback(async () => {
-    try {
-      const updated = await getAccount();
-      setAccount(updated);
-    } catch {
-      // silently fail
-    }
-  }, [setAccount]);
+  const handleRefresh = useCallback(() => {
+    refreshAccount();
+  }, [refreshAccount]);
 
-  const showBalanceSkeleton = loading && !account;
+  const showBalanceSkeleton =
+    (loading || isRefreshing || accountLoading) && !account;
 
   return (
     <div className="min-h-dvh relative overflow-x-hidden">

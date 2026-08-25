@@ -6,7 +6,6 @@ import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { FieldError } from "../../components/ui/FieldError";
 import { register as registerUserService } from "../../services/auth.service";
-import { getAccount } from "../../services/account.service";
 import { useAuth } from "../../hooks/useAuth";
 import { Isotipo } from "../../components/shared/Isotipo";
 import {
@@ -29,7 +28,7 @@ interface RegisterFormValues {
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { setUser, setAccount } = useAuth();
+  const { setUser, refreshAccount } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
@@ -83,27 +82,14 @@ export function RegisterPage() {
       localStorage.setItem("cache_user", JSON.stringify(response.user));
 
       // Fetch account data right away so balance and card show up
-      // without needing a page reload. One retry in case the backend
+      // without needing a page reload. Retries in case the backend
       // is still provisioning the account after registration.
-      fetchAccountWithRetry();
+      refreshAccount(2);
 
       navigate("/bienvenida", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear cuenta");
     }
-  }
-
-  function fetchAccountWithRetry(attempt = 0) {
-    getAccount()
-      .then((acc) => {
-        setAccount(acc);
-        localStorage.setItem("cache_account", JSON.stringify(acc));
-      })
-      .catch(() => {
-        if (attempt < 2) {
-          setTimeout(() => fetchAccountWithRetry(attempt + 1), attempt === 0 ? 1500 : 3000);
-        }
-      });
   }
 
   const inputBaseClass =

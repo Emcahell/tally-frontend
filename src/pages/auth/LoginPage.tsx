@@ -6,7 +6,7 @@ import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { FieldError } from "../../components/ui/FieldError";
 import { login } from "../../services/auth.service";
-import { getAccount } from "../../services/account.service";
+import { ApiError } from "../../config/api";
 import { useAuth } from "../../hooks/useAuth";
 import { Imagotipo } from "../../components/shared/Imagotipo";
 import {
@@ -19,9 +19,27 @@ interface LoginFormValues {
   password: string;
 }
 
+/** Traduce errores del backend a mensajes claros para el usuario */
+function mapLoginError(err: unknown): string {
+  if (!(err instanceof Error)) return "Error al iniciar sesión. Inténtalo de nuevo";
+  const status = err instanceof ApiError ? err.status : undefined;
+
+  switch (status) {
+    case 400:
+    case 401:
+      return "Correo o contraseña incorrectos";
+    case 404:
+      return "No existe una cuenta registrada con este correo";
+    case 422:
+      return "Correo o contraseña incorrectos";
+    default:
+      return err.message || "Error al iniciar sesión. Inténtalo de nuevo";
+  }
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
-  const { setUser, setAccount } = useAuth();
+  const { setUser, refreshAccount } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,16 +64,11 @@ export function LoginPage() {
       localStorage.setItem('cache_user', JSON.stringify(response.user));
 
       // Fetch account data immediately so balance and card info appear right away
-      getAccount()
-        .then((acc) => {
-          setAccount(acc);
-          localStorage.setItem('cache_account', JSON.stringify(acc));
-        })
-        .catch(() => {});
+      refreshAccount();
 
       navigate("/inicio", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+      setError(mapLoginError(err));
     } finally {
       setLoading(false);
     }
@@ -109,7 +122,10 @@ export function LoginPage() {
                 autoComplete="email"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
-                {...register("email", emailRules())}
+                {...register("email", {
+                  ...emailRules(),
+                  onChange: () => error && setError(""),
+                })}
                 className={`w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
                   errors.email
                     ? "border-error focus:border-error focus:ring-error/25"
@@ -140,7 +156,10 @@ export function LoginPage() {
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
                 aria-describedby={errors.password ? "password-error" : undefined}
-                {...register("password", simpleTextRules())}
+                {...register("password", {
+                  ...simpleTextRules(),
+                  onChange: () => error && setError(""),
+                })}
                 className={`w-full h-12 pl-11 pr-11 rounded-xl bg-bg-surface border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
                   errors.password
                     ? "border-error focus:border-error focus:ring-error/25"
