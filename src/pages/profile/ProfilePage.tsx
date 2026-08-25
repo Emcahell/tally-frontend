@@ -24,7 +24,7 @@ interface MenuItem {
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user, loading, setUser } = useAuth();
+  const { user, profile, loading, setUser, setProfile } = useAuth();
 
   async function handleLogout() {
     try {
@@ -37,6 +37,7 @@ export function ProfilePage() {
     localStorage.removeItem("cache_account");
     localStorage.removeItem("cache_profile");
     setUser(null);
+    setProfile(null);
     navigate("/login", { replace: true });
   }
 
@@ -47,7 +48,7 @@ export function ProfilePage() {
       onClick: () => navigate("/perfil/datos-personales"),
       chevron: true,
     },
-    { icon: ShieldCheck, label: "Seguridad & Biometría", chevron: true },
+    { icon: ShieldCheck, label: "Seguridad", onClick: () => navigate("/perfil/seguridad"), chevron: true },
     { icon: Info, label: "Información", onClick: () => navigate("/perfil/informacion"), chevron: true },
     {
       icon: SignOut,
@@ -85,10 +86,10 @@ export function ProfilePage() {
 
             {/* Profile Info */}
             <div className="px-6 pb-6 -mt-12 relative z-10 flex flex-col items-center text-center">
-              {user?.photo ? (
+              {profile?.photo ? (
                 <img
-                  src={user.photo}
-                  alt={user.name || "Usuario"}
+                  src={profile.photo}
+                  alt={profile.name || user?.name || "Usuario"}
                   className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/50"
                 />
               ) : (

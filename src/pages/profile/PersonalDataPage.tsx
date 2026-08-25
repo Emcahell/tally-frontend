@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CaretLeft, CheckCircle, Pencil, X, Camera } from "phosphor-react";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Skeleton } from "../../components/ui/Skeleton";
+import { useAuth } from "../../hooks/useAuth";
 import {
   getProfile,
   updateProfile,
@@ -56,6 +57,7 @@ function InfoRow({ label, value }: InfoRowProps) {
 
 export function PersonalDataPage() {
   const navigate = useNavigate();
+  const { user, setUser, setProfile: setAuthProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cached = loadProfileCache();
   const [profile, setProfile] = useState<ProfileData | null>(cached);
@@ -149,6 +151,25 @@ export function PersonalDataPage() {
 
       setProfile(updated);
       saveProfileCache(updated);
+
+      // Sync with AuthContext so Header/ProfilePage update too
+      // Merge with existing context profile to preserve any fields not in PUT response
+      const mergedProfile = { ...profile, ...updated };
+      if (updated.photo) {
+        mergedProfile.photo = updated.photo;
+      }
+      setAuthProfile(mergedProfile);
+      saveProfileCache(mergedProfile);
+
+      // Sync user photo in context so Header updates too
+      if (updated.photo && user) {
+        const updatedUser = { ...user, photo: updated.photo };
+        setUser(updatedUser);
+        try {
+          localStorage.setItem('cache_user', JSON.stringify(updatedUser));
+        } catch {}
+      }
+
       setShowModal(false);
     } catch (err) {
       setSaveError(
@@ -227,19 +248,36 @@ export function PersonalDataPage() {
                   </p>
 
                   {/* Account Status */}
-                  <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                    <CheckCircle
-                      size={14}
-                      weight="fill"
-                      className="text-success"
-                    />
-                    <span className="text-xs font-semibold text-success">
-                      Cuenta{" "}
-                      {profile?.account?.status === "active"
-                        ? "Activa"
-                        : "Inactiva"}
-                    </span>
-                  </div>
+                  {loading || !profile?.account ? (
+                    <Skeleton className="h-6 w-28 mt-3 rounded-full" />
+                  ) : (
+                    <div
+                      className={`mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                        profile.account.status === "active"
+                          ? "bg-success/10 border-success/20"
+                          : "bg-error/10 border-error/20"
+                      }`}
+                    >
+                      <CheckCircle
+                        size={14}
+                        weight="fill"
+                        className={
+                          profile.account.status === "active"
+                            ? "text-success"
+                            : "text-error"
+                        }
+                      />
+                      <span
+                        className={`text-xs font-semibold ${
+                          profile.account.status === "active"
+                            ? "text-success"
+                            : "text-error"
+                        }`}
+                      >
+                        Cuenta {profile.account.status === "active" ? "Activa" : "Inactiva"}
+                      </span>
+                    </div>
+                  )}
                 </>
               )}
             </div>

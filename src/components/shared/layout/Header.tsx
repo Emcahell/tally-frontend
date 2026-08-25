@@ -15,15 +15,15 @@ function getInitials(name: string): string {
 }
 
 export function Header() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center justify-between max-w-lg mx-auto">
       <Link to="/perfil" className="flex items-center gap-3">
-        {user?.photo ? (
+        {profile?.photo ? (
           <img
-            src={user.photo}
-            alt={user.name || 'Usuario'}
+            src={profile.photo}
+            alt={profile.name || user?.name || 'Usuario'}
             className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/50"
           />
         ) : (

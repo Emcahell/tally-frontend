@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { PersonalDataPage } from './pages/profile/PersonalDataPage';
 import { InformationPage } from './pages/profile/InformationPage';
+import { SecurityPage } from './pages/profile/SecurityPage';
 import { CardsPage } from './pages/cards/CardsPage';
 import { BottomNav } from './components/shared/layout/BottomNav';
 import { ProtectedRoute } from './routes/ProtectedRoute';
@@ -58,6 +59,14 @@ function App() {
         element={
           <ProtectedRoute>
             <PersonalDataPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/perfil/seguridad"
+        element={
+          <ProtectedRoute>
+            <SecurityPage />
           </ProtectedRoute>
         }
       />
