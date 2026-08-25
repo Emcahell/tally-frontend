@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm, useWatch } from "react-hook-form";
 import { CaretLeft, CheckCircle, Pencil, X, Camera } from "phosphor-react";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Skeleton } from "../../components/ui/Skeleton";
+import { FieldError } from "../../components/ui/FieldError";
 import { useAuth } from "../../hooks/useAuth";
 import {
   getProfile,
@@ -10,9 +12,20 @@ import {
   uploadPhoto,
 } from "../../services/auth.service";
 import type { ProfileData } from "../../types/auth";
+import {
+  emailRules,
+  nameRules,
+  phoneRules,
+} from "../../utils/validation";
 
 const CACHE_KEY = "cache_profile";
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
+
+interface EditProfileFormValues {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 function getInitials(name: string): string {
   return name
@@ -36,7 +49,9 @@ function loadProfileCache(): ProfileData | null {
 function saveProfileCache(data: ProfileData) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  } catch {}
+  } catch {
+    // localStorage no disponible; se ignora
+  }
 }
 
 interface InfoRowProps {
@@ -66,13 +81,23 @@ export function PersonalDataPage() {
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editPhone, setEditPhone] = useState("");
-  const [editEmail, setEditEmail] = useState("");
   const [editPhoto, setEditPhoto] = useState<File | null>(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<EditProfileFormValues>({
+    defaultValues: { name: "", email: "", phone: "" },
+    mode: "onBlur",
+  });
+
+  const editName = useWatch({ control, name: "name" });
 
   useEffect(() => {
     let cancelled = false;
@@ -101,9 +126,11 @@ export function PersonalDataPage() {
 
   function openModal() {
     if (!profile) return;
-    setEditName(profile.name);
-    setEditPhone(profile.phone || "");
-    setEditEmail(profile.email);
+    reset({
+      name: profile.name,
+      email: profile.email,
+      phone: profile.phone || "",
+    });
     setEditPhoto(null);
     setEditPhotoPreview(null);
     setSaveError("");
@@ -124,21 +151,20 @@ export function PersonalDataPage() {
     setSaveError("");
   }
 
-  async function handleSave() {
-    if (!editName.trim() || !editEmail.trim()) {
-      setSaveError("Nombre y correo son obligatorios");
-      return;
-    }
-
+  async function onValidSubmit({
+    name,
+    email,
+    phone,
+  }: EditProfileFormValues) {
     setSaving(true);
     setSaveError("");
 
     try {
       // Update profile fields
       const updated = await updateProfile({
-        name: editName.trim(),
-        phone: editPhone.trim(),
-        email: editEmail.trim(),
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
       });
 
       // Upload photo if selected
@@ -167,7 +193,9 @@ export function PersonalDataPage() {
         setUser(updatedUser);
         try {
           localStorage.setItem('cache_user', JSON.stringify(updatedUser));
-        } catch {}
+        } catch {
+          // localStorage no disponible; se ignora
+        }
       }
 
       setShowModal(false);
@@ -363,7 +391,7 @@ export function PersonalDataPage() {
               >
                 {editPhotoPreview || profile?.photo ? (
                   <img
-                    src={editPhotoPreview || profile?.photo!}
+                    src={editPhotoPreview || profile?.photo || ""}
                     alt="Foto de perfil"
                     className="w-20 h-20 rounded-full object-cover ring-2 ring-primary/50"
                   />
@@ -391,54 +419,86 @@ export function PersonalDataPage() {
             </div>
 
             {/* Fields */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
-                />
+            <form onSubmit={handleSubmit(onValidSubmit)} noValidate>
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="edit-name"
+                    className="block text-xs font-medium text-text-secondary mb-1.5"
+                  >
+                    Nombre
+                  </label>
+                  <input
+                    id="edit-name"
+                    type="text"
+                    autoComplete="name"
+                    aria-invalid={!!errors.name}
+                    {...register("name", nameRules())}
+                    className={`w-full h-11 px-4 rounded-xl bg-bg-deep border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+                      errors.name
+                        ? "border-error focus:border-error focus:ring-error/25"
+                        : "border-border focus:border-primary/50 focus:ring-primary/25"
+                    }`}
+                  />
+                  <FieldError message={errors.name?.message} />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-email"
+                    className="block text-xs font-medium text-text-secondary mb-1.5"
+                  >
+                    Correo electrónico
+                  </label>
+                  <input
+                    id="edit-email"
+                    type="email"
+                    autoComplete="email"
+                    aria-invalid={!!errors.email}
+                    {...register("email", emailRules())}
+                    className={`w-full h-11 px-4 rounded-xl bg-bg-deep border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+                      errors.email
+                        ? "border-error focus:border-error focus:ring-error/25"
+                        : "border-border focus:border-primary/50 focus:ring-primary/25"
+                    }`}
+                  />
+                  <FieldError message={errors.email?.message} />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-phone"
+                    className="block text-xs font-medium text-text-secondary mb-1.5"
+                  >
+                    Teléfono
+                  </label>
+                  <input
+                    id="edit-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    aria-invalid={!!errors.phone}
+                    {...register("phone", phoneRules(false))}
+                    className={`w-full h-11 px-4 rounded-xl bg-bg-deep border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+                      errors.phone
+                        ? "border-error focus:border-error focus:ring-error/25"
+                        : "border-border focus:border-primary/50 focus:ring-primary/25"
+                    }`}
+                  />
+                  <FieldError message={errors.phone?.message} />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Correo electrónico
-                </label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Teléfono
-                </label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
-                />
-              </div>
-            </div>
 
-            {/* Save Button */}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
-              ) : (
-                "Guardar cambios"
-              )}
-            </button>
+              {/* Save Button */}
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full h-12 mt-5 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
+                ) : (
+                  "Guardar cambios"
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

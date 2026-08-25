@@ -1,14 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { CaretLeft, Eye, EyeSlash, CheckCircle } from "phosphor-react";
 import { GlassCard } from "../../components/ui/GlassCard";
+import { FieldError } from "../../components/ui/FieldError";
 import { changePassword } from "../../services/auth.service";
+import {
+  VALIDATION_MESSAGES,
+  confirmPasswordRules,
+  passwordRules,
+  simpleTextRules,
+} from "../../utils/validation";
+
+interface SecurityFormValues {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
 export function SecurityPage() {
   const navigate = useNavigate();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -16,31 +27,28 @@ export function SecurityPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors, isSubmitting },
+  } = useForm<SecurityFormValues>({
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+    mode: "onBlur",
+  });
+
+  async function onSubmit({
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  }: SecurityFormValues) {
     setError("");
     setSuccess(false);
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("Todos los campos son obligatorios");
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setError("La nueva contraseña debe tener al menos 8 caracteres");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (currentPassword === newPassword) {
-      setError("La nueva contraseña debe ser diferente a la actual");
-      return;
-    }
-
     setSaving(true);
 
     try {
@@ -50,9 +58,7 @@ export function SecurityPage() {
         new_password_confirmation: confirmPassword,
       });
       setSuccess(true);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      reset();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Error al cambiar contraseña",
@@ -61,6 +67,13 @@ export function SecurityPage() {
       setSaving(false);
     }
   }
+
+  const inputClass = (hasError?: boolean) =>
+    `w-full h-11 px-4 pr-11 rounded-xl bg-bg-deep border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+      hasError
+        ? "border-error focus:border-error focus:ring-error/25"
+        : "border-border focus:border-primary/50 focus:ring-primary/25"
+    }`;
 
   return (
     <div className="min-h-dvh relative">
@@ -108,19 +121,24 @@ export function SecurityPage() {
               Cambiar contraseña
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
               {/* Current password */}
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                <label
+                  htmlFor="current-password"
+                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                >
                   Contraseña actual
                 </label>
                 <div className="relative">
                   <input
+                    id="current-password"
                     type={showCurrent ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Ingresa tu contraseña actual"
-                    className="w-full h-11 px-4 pr-11 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                    autoComplete="current-password"
+                    aria-invalid={!!errors.currentPassword}
+                    {...register("currentPassword", simpleTextRules())}
+                    className={inputClass(!!errors.currentPassword)}
                   />
                   <button
                     type="button"
@@ -133,20 +151,34 @@ export function SecurityPage() {
                     {showCurrent ? <EyeSlash size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <FieldError message={errors.currentPassword?.message} />
               </div>
 
               {/* New password */}
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                <label
+                  htmlFor="new-password"
+                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                >
                   Nueva contraseña
                 </label>
                 <div className="relative">
                   <input
+                    id="new-password"
                     type={showNew ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Ingresa la nueva contraseña"
-                    className="w-full h-11 px-4 pr-11 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.newPassword}
+                    {...register("newPassword", {
+                      ...passwordRules(),
+                      validate: {
+                        ...passwordRules().validate,
+                        differentFromCurrent: (value) =>
+                          String(value) !== getValues("currentPassword") ||
+                          VALIDATION_MESSAGES.samePassword,
+                      },
+                    })}
+                    className={inputClass(!!errors.newPassword)}
                   />
                   <button
                     type="button"
@@ -159,20 +191,29 @@ export function SecurityPage() {
                     {showNew ? <EyeSlash size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <FieldError message={errors.newPassword?.message} />
               </div>
 
               {/* Confirm password */}
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                <label
+                  htmlFor="confirm-new-password"
+                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                >
                   Confirmar contraseña
                 </label>
                 <div className="relative">
                   <input
+                    id="confirm-new-password"
                     type={showConfirm ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirma la nueva contraseña"
-                    className="w-full h-11 px-4 pr-11 rounded-xl bg-bg-deep border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.confirmPassword}
+                    {...register("confirmPassword", {
+                      ...confirmPasswordRules(() => getValues("newPassword")),
+                      deps: ["newPassword"],
+                    })}
+                    className={inputClass(!!errors.confirmPassword)}
                   />
                   <button
                     type="button"
@@ -185,15 +226,16 @@ export function SecurityPage() {
                     {showConfirm ? <EyeSlash size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <FieldError message={errors.confirmPassword?.message} />
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saving || isSubmitting}
                 className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? (
+                {saving || isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
                 ) : (
                   "Guardar contraseña"

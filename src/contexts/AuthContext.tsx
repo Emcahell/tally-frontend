@@ -36,7 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [account, setAccount] = useState<Account | null>(() => loadCache<Account>(CACHE_ACCOUNT_KEY));
   const [profile, setProfile] = useState<ProfileData | null>(() => loadCache<ProfileData>(CACHE_PROFILE_KEY));
   const profileRef = useRef(profile);
-  profileRef.current = profile;
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 

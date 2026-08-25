@@ -1,24 +1,41 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { Envelope, Lock, Eye, EyeSlash } from "phosphor-react";
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
+import { FieldError } from "../../components/ui/FieldError";
 import { login } from "../../services/auth.service";
 import { getAccount } from "../../services/account.service";
 import { useAuth } from "../../hooks/useAuth";
 import { Imagotipo } from "../../components/shared/Imagotipo";
+import {
+  emailRules,
+  simpleTextRules,
+} from "../../utils/validation";
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { setUser, setAccount } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    defaultValues: { email: "", password: "" },
+    mode: "onBlur",
+  });
+
+  async function onSubmit({ email, password }: LoginFormValues) {
     setError("");
     setLoading(true);
 
@@ -60,7 +77,11 @@ export function LoginPage() {
       </div>
 
       <GlassCard className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
+        >
           {/* Error */}
           {error && (
             <div className="px-4 py-3 rounded-xl bg-error/10 border border-error/20 text-error text-sm font-medium">
@@ -84,14 +105,19 @@ export function LoginPage() {
               <input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                required
                 autoComplete="email"
-                className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                {...register("email", emailRules())}
+                className={`w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+                  errors.email
+                    ? "border-error focus:border-error focus:ring-error/25"
+                    : "border-border focus:border-primary/50 focus:ring-primary/25"
+                }`}
               />
             </div>
+            <FieldError id="email-error" message={errors.email?.message} />
           </div>
 
           {/* Password */}
@@ -110,12 +136,16 @@ export function LoginPage() {
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                required
                 autoComplete="current-password"
-                className="w-full h-12 pl-11 pr-11 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
+                {...register("password", simpleTextRules())}
+                className={`w-full h-12 pl-11 pr-11 rounded-xl bg-bg-surface border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors ${
+                  errors.password
+                    ? "border-error focus:border-error focus:ring-error/25"
+                    : "border-border focus:border-primary/50 focus:ring-primary/25"
+                }`}
               />
               <button
                 type="button"
@@ -128,15 +158,16 @@ export function LoginPage() {
                 {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            <FieldError id="password-error" message={errors.password?.message} />
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || isSubmitting}
             className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {loading || isSubmitting ? (
               <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
             ) : (
               <>Iniciar Sesión</>

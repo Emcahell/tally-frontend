@@ -1,43 +1,76 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm, useWatch } from "react-hook-form";
 import { User, Envelope, Phone, Lock, Eye, EyeSlash } from "phosphor-react";
 import { AuthLayout } from "../../components/shared/layout/AuthLayout";
 import { GlassCard } from "../../components/ui/GlassCard";
-import { register } from "../../services/auth.service";
+import { FieldError } from "../../components/ui/FieldError";
+import { register as registerUserService } from "../../services/auth.service";
 import { useAuth } from "../../hooks/useAuth";
 import { Isotipo } from "../../components/shared/Isotipo";
+import {
+  VALIDATION_MESSAGES,
+  confirmPasswordRules,
+  emailRules,
+  nameRules,
+  passwordRules,
+  phoneRules,
+} from "../../utils/validation";
+
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+}
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      acceptTerms: false,
+    },
+    mode: "onBlur",
+  });
+
+  const acceptTerms = useWatch({ control, name: "acceptTerms" });
+
+  function toggleAcceptTerms() {
+    setValue("acceptTerms", !acceptTerms, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+
+  async function onSubmit({
+    name,
+    email,
+    phone,
+    password,
+    confirmPassword,
+  }: RegisterFormValues) {
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    setLoading(true);
-
     try {
-      const response = await register({
+      const response = await registerUserService({
         name,
         email,
         phone,
@@ -49,10 +82,15 @@ export function RegisterPage() {
       navigate("/bienvenida", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear cuenta");
-    } finally {
-      setLoading(false);
     }
   }
+
+  const inputBaseClass =
+    "w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors";
+  const validInputClass =
+    "border-border focus:border-primary/50 focus:ring-primary/25";
+  const invalidInputClass =
+    "border-error focus:border-error focus:ring-error/25";
 
   return (
     <AuthLayout>
@@ -70,7 +108,11 @@ export function RegisterPage() {
       </div>
 
       <GlassCard className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
+        >
           {/* Error */}
           {error && (
             <div className="px-4 py-3 rounded-xl bg-error/10 border border-error/20 text-error text-sm font-medium">
@@ -94,14 +136,15 @@ export function RegisterPage() {
               <input
                 id="name"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
                 placeholder="Simón Bolívar"
-                required
                 autoComplete="name"
-                className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
+                {...register("name", nameRules())}
+                className={`${inputBaseClass} ${errors.name ? invalidInputClass : validInputClass}`}
               />
             </div>
+            <FieldError id="name-error" message={errors.name?.message} />
           </div>
 
           {/* Email */}
@@ -120,14 +163,15 @@ export function RegisterPage() {
               <input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                required
                 autoComplete="email"
-                className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                {...register("email", emailRules())}
+                className={`${inputBaseClass} ${errors.email ? invalidInputClass : validInputClass}`}
               />
             </div>
+            <FieldError id="email-error" message={errors.email?.message} />
           </div>
 
           {/* Phone */}
@@ -146,14 +190,15 @@ export function RegisterPage() {
               <input
                 id="phone"
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 12 3456 7890"
-                required
                 autoComplete="tel"
-                className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
+                {...register("phone", phoneRules())}
+                className={`${inputBaseClass} ${errors.phone ? invalidInputClass : validInputClass}`}
               />
             </div>
+            <FieldError id="phone-error" message={errors.phone?.message} />
           </div>
 
           {/* Password */}
@@ -172,12 +217,14 @@ export function RegisterPage() {
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                required
                 autoComplete="new-password"
-                className="w-full h-12 pl-11 pr-11 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.password}
+                aria-describedby={
+                  errors.password ? "register-password-error" : undefined
+                }
+                {...register("password", passwordRules())}
+                className={`${inputBaseClass} pr-11 ${errors.password ? invalidInputClass : validInputClass}`}
               />
               <button
                 type="button"
@@ -190,6 +237,10 @@ export function RegisterPage() {
                 {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            <FieldError
+              id="register-password-error"
+              message={errors.password?.message}
+            />
           </div>
 
           {/* Confirm Password */}
@@ -208,31 +259,57 @@ export function RegisterPage() {
               <input
                 id="confirmPassword"
                 type={showPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                required
                 autoComplete="new-password"
-                className="w-full h-12 pl-11 pr-4 rounded-xl bg-bg-surface border border-border text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-colors"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={
+                  errors.confirmPassword
+                    ? "confirm-password-error"
+                    : undefined
+                }
+                {...register("confirmPassword", {
+                  ...confirmPasswordRules(() => getValues("password")),
+                  deps: ["password"],
+                })}
+                className={`${inputBaseClass} ${errors.confirmPassword ? invalidInputClass : validInputClass}`}
               />
             </div>
+            <FieldError
+              id="confirm-password-error"
+              message={errors.confirmPassword?.message}
+            />
           </div>
 
           {/* Terms checkbox */}
           <div className="flex items-start gap-3 pt-2">
             <button
               type="button"
-              onClick={() => setAcceptedTerms(!acceptedTerms)}
-              className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                acceptedTerms
-                  ? "bg-primary border-primary"
-                  : "border-border hover:border-primary/50"
-              }`}
+              onClick={toggleAcceptTerms}
+              role="checkbox"
+              aria-checked={acceptTerms}
               aria-label="Aceptar términos y condiciones"
+              className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                acceptTerms
+                  ? "bg-primary border-primary"
+                  : errors.acceptTerms
+                    ? "border-error hover:border-error"
+                    : "border-border hover:border-primary/50"
+              }`}
             >
-              {acceptedTerms && (
+              <input
+                type="checkbox"
+                tabIndex={-1}
+                className="sr-only"
+                aria-hidden="true"
+                {...register("acceptTerms", {
+                  validate: (value) =>
+                    value === true ||
+                    "Debes aceptar los Términos y Condiciones",
+                })}
+              />
+              {acceptTerms && (
                 <svg
-                  className="w-3 h-3 text-bg-deep"
+                  className="w-3 h-3 text-bg-deep pointer-events-none"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -257,14 +334,16 @@ export function RegisterPage() {
               y la Política de Privacidad de TallyBank
             </p>
           </div>
+          <FieldError message={errors.acceptTerms?.message} />
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading || !acceptedTerms}
+            disabled={isSubmitting || !acceptTerms}
+            title={!acceptTerms ? VALIDATION_MESSAGES.required : undefined}
             className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {isSubmitting ? (
               <div className="w-5 h-5 border-2 border-bg-deep/30 border-t-bg-deep rounded-full animate-spin" />
             ) : (
               <>Crear Cuenta</>
