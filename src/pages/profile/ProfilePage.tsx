@@ -24,7 +24,7 @@ interface MenuItem {
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, loading, setUser, setProfile } = useAuth();
+  const { user, profile, loading, setUser, setAccount, setProfile } = useAuth();
 
   async function handleLogout() {
     try {
@@ -37,6 +37,7 @@ export function ProfilePage() {
     localStorage.removeItem("cache_account");
     localStorage.removeItem("cache_profile");
     setUser(null);
+    setAccount(null);
     setProfile(null);
     navigate("/login", { replace: true });
   }

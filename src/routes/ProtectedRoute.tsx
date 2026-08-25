@@ -1,15 +1,49 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-interface ProtectedRouteProps {
+interface RouteGuardProps {
   children: React.ReactNode;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const token = localStorage.getItem('token');
+function FullScreenLoader() {
+  return (
+    <div className="min-h-dvh bg-bg-deep flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+    </div>
+  );
+}
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+/** Permite el acceso solo con sesión activa.
+ *  Muestra un loader mientras se valida la sesión en frío (sin caché). */
+export function ProtectedRoute({ children }: RouteGuardProps) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    if (loading) {
+      return <FullScreenLoader />;
+    }
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;
+}
+
+/** Rutas públicas (login/register): si ya hay sesión activa redirige a inicio. */
+export function PublicOnlyRoute({ children }: RouteGuardProps) {
+  const { user } = useAuth();
+
+  if (user) {
+    return <Navigate to="/inicio" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+/** Redirige la raíz según el estado de la sesión:
+ *  con sesión abierta a /inicio, sin sesión a /login. */
+export function RootRedirect() {
+  const { user } = useAuth();
+
+  return <Navigate to={user ? '/inicio' : '/login'} replace />;
 }
