@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { CaretLeft, FileText, Warning } from "phosphor-react";
+import { FileText, Warning } from "phosphor-react";
 import { GlassCard } from "../../components/ui/GlassCard";
+import { PageHeader } from "../../components/shared/layout/PageHeader";
 
 const termsSections = [
   {
@@ -85,7 +85,7 @@ const disclaimerSections = [
   {
     title: "3. Dinero y transacciones ficticias",
     content:
-      "Todo el dinero mostrado dentro de la plataforma es totalmente ficticio. Las transferencias, saldos, tarjetas y cualquier otra operación financiera son simulaciones que no tienen valor en el mundo real. Los usuarios pueden crear cuentas, hacer transferencias y gestionar su \"dinero\" sin ningún riesgo financiero.",
+      'Todo el dinero mostrado dentro de la plataforma es totalmente ficticio. Las transferencias, saldos, tarjetas y cualquier otra operación financiera son simulaciones que no tienen valor en el mundo real. Los usuarios pueden crear cuentas, hacer transferencias y gestionar su "dinero" sin ningún riesgo financiero.',
   },
   {
     title: "4. Nunca pedimos dinero real",
@@ -112,7 +112,6 @@ const disclaimerSections = [
 type Tab = "terms" | "disclaimer";
 
 export function InformationPage() {
-  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("terms");
 
   const sections = tab === "terms" ? termsSections : disclaimerSections;
@@ -124,18 +123,9 @@ export function InformationPage() {
 
       <div className="relative z-10 max-w-lg mx-auto pb-24">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-            aria-label="Volver"
-          >
-            <CaretLeft size={20} weight="bold" />
-          </button>
-          <h1 className="text-base font-bold text-text-primary">Información</h1>
-        </header>
+        <PageHeader title="Información" />
 
-        <main className="px-5 space-y-6">
+        <main className="px-5 space-y-6 mt-4">
           {/* Tab Selector */}
           <div className="flex gap-2 p-1 rounded-2xl bg-bg-surface border border-border">
             <button
@@ -180,7 +170,7 @@ export function InformationPage() {
             </div>
           ))}
 
-          <GlassCard className="p-5 mt-4">
+          <GlassCard className="p-5">
             <p className="text-xs text-text-muted text-center leading-relaxed">
               {tab === "terms"
                 ? "Al continuar usando Tally, confirmas que has leído, comprendido y aceptado estos Términos y Condiciones."

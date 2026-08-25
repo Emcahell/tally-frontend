@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { CaretLeft, Eye, EyeSlash, CheckCircle } from "phosphor-react";
+import { Eye, EyeSlash, CheckCircle } from "phosphor-react";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { FieldError } from "../../components/ui/FieldError";
+import { PageHeader } from "../../components/shared/layout/PageHeader";
 import { changePassword } from "../../services/auth.service";
 import {
   VALIDATION_MESSAGES,
@@ -19,7 +19,6 @@ interface SecurityFormValues {
 }
 
 export function SecurityPage() {
-  const navigate = useNavigate();
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -82,18 +81,9 @@ export function SecurityPage() {
 
       <div className="relative z-10 max-w-lg mx-auto pb-24">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-            aria-label="Volver"
-          >
-            <CaretLeft size={20} weight="bold" />
-          </button>
-          <h1 className="text-base font-bold text-text-primary">Seguridad</h1>
-        </header>
+        <PageHeader title="Seguridad" />
 
-        <main className="px-5 mt-12 space-y-6">
+        <main className="px-5 mt-8 space-y-6">
           {/* Success message */}
           {success && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-success/10 border border-success/20">
@@ -121,7 +111,11 @@ export function SecurityPage() {
               Cambiar contraseña
             </h3>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4"
+            >
               {/* Current password */}
               <div>
                 <label

@@ -123,7 +123,7 @@ export function TermsAndConditionsPage() {
         ))}
 
         {/* Footer */}
-        <GlassCard className="p-5 mt-8">
+        <GlassCard className="p-5">
           <p className="text-xs text-text-muted text-center leading-relaxed">
             Al continuar usando Tally, confirmas que has leído, comprendido y
             aceptado estos Términos y Condiciones. Si tienes dudas, contáctate

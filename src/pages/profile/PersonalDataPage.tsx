@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm, useWatch } from "react-hook-form";
-import { CaretLeft, CheckCircle, Pencil, X, Camera } from "phosphor-react";
+import { CheckCircle, Pencil, X, Camera } from "phosphor-react";
+import { PageHeader } from "../../components/shared/layout/PageHeader";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { FieldError } from "../../components/ui/FieldError";
@@ -12,11 +12,7 @@ import {
   uploadPhoto,
 } from "../../services/auth.service";
 import type { ProfileData } from "../../types/auth";
-import {
-  emailRules,
-  nameRules,
-  phoneRules,
-} from "../../utils/validation";
+import { emailRules, nameRules, phoneRules } from "../../utils/validation";
 
 const CACHE_KEY = "cache_profile";
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
@@ -71,7 +67,6 @@ function InfoRow({ label, value }: InfoRowProps) {
 }
 
 export function PersonalDataPage() {
-  const navigate = useNavigate();
   const { user, setUser, setProfile: setAuthProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cached = loadProfileCache();
@@ -151,11 +146,7 @@ export function PersonalDataPage() {
     setSaveError("");
   }
 
-  async function onValidSubmit({
-    name,
-    email,
-    phone,
-  }: EditProfileFormValues) {
+  async function onValidSubmit({ name, email, phone }: EditProfileFormValues) {
     setSaving(true);
     setSaveError("");
 
@@ -192,7 +183,7 @@ export function PersonalDataPage() {
         const updatedUser = { ...user, photo: updated.photo };
         setUser(updatedUser);
         try {
-          localStorage.setItem('cache_user', JSON.stringify(updatedUser));
+          localStorage.setItem("cache_user", JSON.stringify(updatedUser));
         } catch {
           // localStorage no disponible; se ignora
         }
@@ -215,18 +206,7 @@ export function PersonalDataPage() {
 
       <div className="relative z-10 max-w-lg mx-auto pb-24">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
-            aria-label="Volver"
-          >
-            <CaretLeft size={20} weight="bold" />
-          </button>
-          <h1 className="text-base font-bold text-text-primary">
-            Datos Personales
-          </h1>
-        </header>
+        <PageHeader title="Datos Personales" />
 
         <main className="px-5 space-y-6">
           {error && (
@@ -238,7 +218,7 @@ export function PersonalDataPage() {
           {/* Profile Card */}
           <GlassCard className="overflow-hidden">
             {/* Gradient Header */}
-            <div className="h-24 bg-gradient-to-br from-primary/30 via-accent-violet/20 to-accent-cyan/10 relative">
+            <div className="h-24 bg-gradient-to-br from-primary/30 via-accent-violet/20 to-accent-cyan/10 relative rounded-2xl">
               <div className="absolute inset-0 bg-gradient-to-t from-bg-card/80 to-transparent" />
             </div>
 
@@ -302,7 +282,10 @@ export function PersonalDataPage() {
                             : "text-error"
                         }`}
                       >
-                        Cuenta {profile.account.status === "active" ? "Activa" : "Inactiva"}
+                        Cuenta{" "}
+                        {profile.account.status === "active"
+                          ? "Activa"
+                          : "Inactiva"}
                       </span>
                     </div>
                   )}
