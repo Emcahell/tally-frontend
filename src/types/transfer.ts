@@ -48,3 +48,19 @@ export interface AddPayeeResponse {
     payee: PayeeUser;
   };
 }
+
+/** Respuesta paginada estilo Laravel Paginator de GET /transfers */
+export interface PaginatedTransfers {
+  current_page: number;
+  data: Transfer[];
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}

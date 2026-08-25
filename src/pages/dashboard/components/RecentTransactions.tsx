@@ -1,89 +1,113 @@
-import { ArrowDownLeft, ArrowUpRight, CaretRight } from 'phosphor-react';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CaretRight, WarningCircle } from "phosphor-react";
+import { Skeleton } from "../../../components/ui/Skeleton";
+import { TransferListItem } from "../../../components/shared/TransferListItem";
+import { TransactionDetailModal } from "../../../components/shared/TransactionDetailModal";
+import { useAuth } from "../../../hooks/useAuth";
+import { getTransfers } from "../../../services/transfer.service";
+import type { Transfer } from "../../../types/transfer";
 
-interface Transaction {
-  id: string;
-  title: string;
-  subtitle: string;
-  amount: number;
-  type: 'deposit' | 'withdrawal';
-}
-
-const transactions: Transaction[] = [
-  {
-    id: '1',
-    title: 'Apple Store',
-    subtitle: 'Hoy · 2:45 PM',
-    amount: -9.99,
-    type: 'withdrawal',
-  },
-  {
-    id: '2',
-    title: 'Transferencia Recibida',
-    subtitle: 'Ayer · De Carlos M.',
-    amount: 250.00,
-    type: 'deposit',
-  },
-];
-
-function TransactionIcon({ type }: { type: Transaction['type'] }) {
-  return (
-    <div
-      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-        type === 'deposit'
-          ? 'bg-accent-cyan/15 text-accent-cyan'
-          : 'bg-primary/15 text-primary'
-      }`}
-    >
-      {type === 'deposit' ? (
-        <ArrowDownLeft size={20} weight="bold" />
-      ) : (
-        <ArrowUpRight size={20} weight="bold" />
-      )}
-    </div>
-  );
-}
-
-function TransactionItem({ transaction }: { transaction: Transaction }) {
-  const isPositive = transaction.amount > 0;
-
-  return (
-    <div className="flex items-center gap-3 py-3">
-      <TransactionIcon type={transaction.type} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-text-primary truncate">
-          {transaction.title}
-        </p>
-        <p className="text-xs text-text-muted">{transaction.subtitle}</p>
-      </div>
-      <span
-        className={`text-sm font-bold ${
-          isPositive ? 'text-accent-cyan' : 'text-text-primary'
-        }`}
-      >
-        {isPositive ? '+' : '-'} ${Math.abs(transaction.amount).toFixed(2)}
-      </span>
-    </div>
-  );
-}
+const RECENT_LIMIT = 6;
 
 export function RecentTransactions() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getTransfers(1)
+      .then((res) => {
+        if (!cancelled) setTransfers(res.data.slice(0, RECENT_LIMIT));
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setError(
+            err instanceof Error
+              ? err.message
+              : "No se pudieron cargar los movimientos",
+          );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <h3 className="text-base font-bold text-text-primary">
           Movimientos Recientes
         </h3>
-        <button className="text-xs font-semibold text-primary hover:text-primary-accent transition-colors flex items-center gap-0.5">
+        <button
+          onClick={() => navigate("/movimientos")}
+          className="text-xs font-semibold text-primary hover:text-primary-accent transition-colors flex items-center gap-2"
+        >
           Ver todo
-          <CaretRight size={14} weight="fill" />
+          <CaretRight size={14} weight="bold" />
         </button>
       </div>
 
+      {/* Error */}
+      {error && (
+        <div className="mt-2 flex items-center gap-2 px-4 py-3 rounded-xl bg-error/10 border border-error/20">
+          <WarningCircle size={18} className="text-error shrink-0" />
+          <span className="text-xs text-error font-medium">{error}</span>
+        </div>
+      )}
+
+      {/* List */}
       <div className="divide-y divide-border">
-        {transactions.map((tx) => (
-          <TransactionItem key={tx.id} transaction={tx} />
-        ))}
+        {loading ? (
+          [1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center gap-3 py-3">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3.5 w-32" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+              <Skeleton className="h-4 w-16" />
+            </div>
+          ))
+        ) : !error && transfers.length === 0 ? (
+          <p className="py-8 text-center text-sm text-text-muted">
+            Aún no tienes movimientos.{" "}
+            <button
+              onClick={() => navigate("/enviar")}
+              className="text-primary font-semibold hover:text-primary-accent transition-colors"
+            >
+              Envía tu primera transferencia
+            </button>
+          </p>
+        ) : (
+          transfers.map((transfer) => (
+            <TransferListItem
+              key={transfer.id}
+              transfer={transfer}
+              userId={user?.id}
+              onClick={() => setSelectedId(transfer.id)}
+            />
+          ))
+        )}
       </div>
+
+      {/* Detail modal */}
+      {selectedId !== null && (
+        <TransactionDetailModal
+          transferId={selectedId}
+          userId={user?.id}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
     </div>
   );
 }
