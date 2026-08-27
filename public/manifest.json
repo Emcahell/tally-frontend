@@ -1,0 +1,28 @@
+{
+  "name": "Tally — Digital Bank",
+  "short_name": "Tally",
+  "description": "Tu banco digital. Envía, recibe y gestiona tu dinero desde tu celular.",
+  "start_url": "/login",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04060c",
+  "theme_color": "#10b981",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "banking"],
+  "lang": "es",
+  "dir": "ltr"
+}
