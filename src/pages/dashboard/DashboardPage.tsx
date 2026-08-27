@@ -5,13 +5,8 @@ import { RecentTransactions } from "./components/RecentTransactions";
 import { useAuth } from "../../hooks/useAuth";
 
 export function DashboardPage() {
-  const {
-    account,
-    loading,
-    isRefreshing,
-    accountLoading,
-    refreshAccount,
-  } = useAuth();
+  const { account, loading, isRefreshing, accountLoading, refreshAccount } =
+    useAuth();
 
   const handleRefresh = useCallback(() => {
     refreshAccount();
@@ -28,7 +23,7 @@ export function DashboardPage() {
 
       <Header />
 
-      <div className="relative z-10">
+      <div className="relative max-w-lg mx-auto z-10">
         {/* Spacer for fixed header */}
         <div className="h-26 w-full" />
 
