@@ -6,70 +6,81 @@ import { TransferListItem } from "../../components/shared/TransferListItem";
 import { TransactionDetailModal } from "../../components/shared/TransactionDetailModal";
 import { useAuth } from "../../hooks/useAuth";
 import { getTransfers } from "../../services/transfer.service";
+import { getCache, setCache } from "../../utils/cache";
 import type { Transfer } from "../../types/transfer";
 
 /** Cuántos movimientos se muestran inicialmente y cuántos añade cada "Ver más" */
 const INITIAL_VISIBLE = 20;
 const STEP = 10;
+const CACHE_KEY = 'transfers_history';
+
+interface CachedHistory {
+  transfers: Transfer[];
+  total: number;
+  page: number;
+  lastPage: number;
+}
 
 export function TransfersHistoryPage() {
   const { user } = useAuth();
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
+
+  const [transfers, setTransfers] = useState<Transfer[]>(() => {
+    const cached = getCache<CachedHistory>(CACHE_KEY);
+    return cached?.transfers ?? [];
+  });
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(() => {
+    const cached = getCache<CachedHistory>(CACHE_KEY);
+    return cached?.total ?? 0;
+  });
+  const [page, setPage] = useState(() => {
+    const cached = getCache<CachedHistory>(CACHE_KEY);
+    return cached?.page ?? 1;
+  });
+  const [lastPage, setLastPage] = useState(() => {
+    const cached = getCache<CachedHistory>(CACHE_KEY);
+    return cached?.lastPage ?? 1;
+  });
+  const [loading, setLoading] = useState(() => !getCache<CachedHistory>(CACHE_KEY));
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
+  const fetchHistory = useCallback(() => {
     getTransfers(1)
       .then((res) => {
-        if (!cancelled) {
-          setTransfers(res.data);
-          setTotal(res.total ?? res.data.length);
-          setPage(res.current_page);
-          setLastPage(res.last_page ?? 1);
-        }
+        const t = res.data;
+        const tot = res.total ?? t.length;
+        const pg = res.current_page;
+        const lp = res.last_page ?? 1;
+
+        setTransfers(t);
+        setTotal(tot);
+        setPage(pg);
+        setLastPage(lp);
+        setCache(CACHE_KEY, { transfers: t, total: tot, page: pg, lastPage: lp } satisfies CachedHistory);
       })
       .catch((err) => {
-        if (!cancelled)
+        if (!transfers.length) {
           setError(
             err instanceof Error
               ? err.message
               : "No se pudo cargar el historial",
           );
+        }
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .finally(() => setLoading(false));
+  }, [transfers.length]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   const retry = useCallback(() => {
     setError("");
     setLoading(true);
-    getTransfers(1)
-      .then((res) => {
-        setTransfers(res.data);
-        setTotal(res.total ?? res.data.length);
-        setPage(res.current_page);
-        setLastPage(res.last_page ?? 1);
-      })
-      .catch((err) =>
-        setError(
-          err instanceof Error ? err.message : "No se pudo cargar el historial",
-        ),
-      )
-      .finally(() => setLoading(false));
-  }, []);
+    fetchHistory();
+  }, [fetchHistory]);
 
   /** Añade 10 movimientos más; trae páginas siguientes del backend
    *  solo cuando los ya cargados se agotan. */

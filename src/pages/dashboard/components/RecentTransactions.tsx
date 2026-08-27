@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { CaretRight, WarningCircle } from "phosphor-react";
 import { Skeleton } from "../../../components/ui/Skeleton";
@@ -6,41 +6,42 @@ import { TransferListItem } from "../../../components/shared/TransferListItem";
 import { TransactionDetailModal } from "../../../components/shared/TransactionDetailModal";
 import { useAuth } from "../../../hooks/useAuth";
 import { getTransfers } from "../../../services/transfer.service";
+import { getCache, setCache } from "../../../utils/cache";
 import type { Transfer } from "../../../types/transfer";
 
 const RECENT_LIMIT = 6;
+const CACHE_KEY = 'recent_transfers';
 
 export function RecentTransactions() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [transfers, setTransfers] = useState<Transfer[]>(() => getCache<Transfer[]>(CACHE_KEY) ?? []);
+  const [loading, setLoading] = useState(() => !getCache<Transfer[]>(CACHE_KEY));
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
+  const fetchTransfers = useCallback(() => {
     getTransfers(1)
       .then((res) => {
-        if (!cancelled) setTransfers(res.data.slice(0, RECENT_LIMIT));
+        const recent = res.data.slice(0, RECENT_LIMIT);
+        setTransfers(recent);
+        setCache(CACHE_KEY, recent);
       })
       .catch((err) => {
-        if (!cancelled)
+        if (!transfers.length) {
           setError(
             err instanceof Error
               ? err.message
               : "No se pudieron cargar los movimientos",
           );
+        }
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .finally(() => setLoading(false));
+  }, [transfers.length]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(() => {
+    fetchTransfers();
+  }, [fetchTransfers]);
 
   return (
     <div>
