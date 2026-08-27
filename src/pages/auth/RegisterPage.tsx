@@ -78,6 +78,9 @@ export function RegisterPage() {
         password_confirmation: confirmPassword,
       });
       localStorage.setItem("token", response.token);
+      // Flag para que PublicOnlyRoute no redirija a /inicio
+      // mientras navegamos a /bienvenida
+      localStorage.setItem("justRegistered", "true");
       setUser(response.user);
       localStorage.setItem("cache_user", JSON.stringify(response.user));
 

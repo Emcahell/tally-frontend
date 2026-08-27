@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Confetti,
@@ -83,6 +84,11 @@ const features = [
 export function WelcomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Limpiar el flag de registro para que PublicOnlyRoute funcione normal
+  useEffect(() => {
+    localStorage.removeItem("justRegistered");
+  }, []);
 
   function handleContinue() {
     navigate("/inicio", { replace: true });

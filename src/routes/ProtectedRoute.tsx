@@ -33,7 +33,9 @@ export function ProtectedRoute({ children }: RouteGuardProps) {
 export function PublicOnlyRoute({ children }: RouteGuardProps) {
   const { user } = useAuth();
 
-  if (user) {
+  // Si el usuario acaba de registrarse, no redirigir a /inicio.
+  // El flag se limpia en WelcomePage.
+  if (user && !localStorage.getItem('justRegistered')) {
     return <Navigate to="/inicio" replace />;
   }
 
