@@ -11,6 +11,7 @@ import { SecurityPage } from './pages/profile/SecurityPage';
 import { CardsPage } from './pages/cards/CardsPage';
 import { SendMoneyPage } from './pages/transfer/SendMoneyPage';
 import { TransfersHistoryPage } from './pages/transfers/TransfersHistoryPage';
+import { NotificationsPage } from './pages/notifications/NotificationsPage';
 import { BottomNav } from './components/shared/layout/BottomNav';
 import {
   ProtectedRoute,
@@ -119,6 +120,14 @@ function App() {
         element={
           <ProtectedRoute>
             <TransfersHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notificaciones"
+        element={
+          <ProtectedRoute>
+            <NotificationsPage />
           </ProtectedRoute>
         }
       />

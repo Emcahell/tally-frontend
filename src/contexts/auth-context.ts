@@ -5,6 +5,7 @@ export interface AuthContextType {
   user: User | null;
   account: Account | null;
   profile: ProfileData | null;
+  unreadCount: number;
   loading: boolean;
   isRefreshing: boolean;
   /** true mientras se obtiene la cuenta del backend (login, registro o refresh) */
@@ -12,6 +13,7 @@ export interface AuthContextType {
   setUser: (user: User | null) => void;
   setAccount: (account: Account | null) => void;
   setProfile: (profile: ProfileData | null) => void;
+  setUnreadCount: (count: number) => void;
   /** Obtiene la cuenta del backend, la guarda en contexto y caché.
    *  `retries` reintenta con espera ante fallos (ej. cuenta recién creada). */
   refreshAccount: (retries?: number) => Promise<Account | null>;

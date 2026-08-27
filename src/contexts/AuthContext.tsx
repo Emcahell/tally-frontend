@@ -3,6 +3,7 @@ import { AuthContext } from './auth-context';
 import type { User, Account, ProfileData } from '../types/auth';
 import { getMe, getProfile } from '../services/auth.service';
 import { getAccount } from '../services/account.service';
+import { getUnreadNotifications } from '../services/notification.service';
 
 const CACHE_USER_KEY = 'cache_user';
 const CACHE_ACCOUNT_KEY = 'cache_account';
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profileRef.current = profile;
   }, [profile]);
 
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [accountLoading, setAccountLoading] = useState(false);
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const mePromise = getMe();
       const accPromise = getAccount();
       const profilePromise = getProfile();
+      const notifPromise = getUnreadNotifications();
 
       mePromise
         .then(me => {
@@ -136,7 +139,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Keep cached profile visible
         });
 
-      await Promise.allSettled([mePromise, accPromise, profilePromise]);
+      notifPromise
+        .then((res) => {
+          if (!cancelled) setUnreadCount(res.unread_count);
+        })
+        .catch(() => {});
+
+      await Promise.allSettled([mePromise, accPromise, profilePromise, notifPromise]);
 
       if (!cancelled) {
         setLoading(false);
@@ -150,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <AuthContext.Provider value={{ user, account, profile, loading, isRefreshing, accountLoading, setUser, setAccount, setProfile, refreshAccount }}>
+    <AuthContext.Provider value={{ user, account, profile, unreadCount, loading, isRefreshing, accountLoading, setUser, setAccount, setProfile, setUnreadCount, refreshAccount }}>
       {children}
     </AuthContext.Provider>
   );

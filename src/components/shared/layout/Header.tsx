@@ -3,6 +3,8 @@ import { Bell } from 'phosphor-react';
 import { IconButton } from '../../ui/IconButton';
 import { Skeleton } from '../../ui/Skeleton';
 import { useAuth } from '../../../hooks/useAuth';
+import { useState, useEffect } from 'react';
+import { getUnreadNotifications } from '../../../services/notification.service';
 
 function getInitials(name: string): string {
   return name
@@ -16,6 +18,22 @@ function getInitials(name: string): string {
 
 export function Header() {
   const { user, profile, loading } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchUnread = async () => {
+      try {
+        const res = await getUnreadNotifications();
+        if (!cancelled) setUnreadCount(res.unread_count);
+      } catch {
+        // ignore
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-bg-deep/80 backdrop-blur-xl px-5 pt-10 pb-4 flex items-center justify-between max-w-lg mx-auto">
@@ -45,9 +63,14 @@ export function Header() {
         </div>
       </Link>
 
-      <IconButton aria-label="Notificaciones" badge>
-        <Bell size={20} weight="bold" />
-      </IconButton>
+      <Link to="/notificaciones" className="relative">
+        <IconButton aria-label="Notificaciones">
+          <Bell size={20} weight="bold" />
+          {unreadCount > 0 && (
+            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-bg-deep animate-pulse" />
+          )}
+        </IconButton>
+      </Link>
     </header>
   );
 }
