@@ -6,6 +6,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), versioning foll
 
 ---
 
+## [1.1.0] — 2026-08-28
+
+> 🔒 **Modal de confirmación para transferencias.**
+
+### ✨ Features
+
+#### Money Transfers
+- Modal de confirmación antes de enviar dinero
+  - Muestra monto, destinatario y concepto (si existe)
+  - Botones "Confirmar envío" y "Cancelar"
+  - Click fuera de la modal cierra sin enviar
+  - Envío solo se ejecuta tras confirmación explícita del usuario
+
+---
+
 ## [1.0.0] — 2026-08-27
 
 > 🚀 **Primera versión pública de Tally.** Tu banco digital, listo para lanzamiento.
