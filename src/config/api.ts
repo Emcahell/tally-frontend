@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://tally-backend-ngfx.onrender.com/api';
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://marinjuan24.alwaysdata.net/tally/api';
 
 /** Error de API con código de estado HTTP para manejo fino en la UI */
 export class ApiError extends Error {
