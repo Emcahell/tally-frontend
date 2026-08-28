@@ -47,6 +47,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [accountLoading, setAccountLoading] = useState(false);
 
+  // After login, user is set but profile/account may not be yet.
+  // This effect fetches them when user becomes available for the first time
+  // (i.e., after LoginPage calls setUser without the main effect re-running).
+  // After login, user is set but profile/account may not be yet.
+  // This effect fetches them when user becomes available after a fresh login.
+  const didFetchProfileRef = useRef(false);
+  useEffect(() => {
+    // Reset when user logs out so next login triggers a fresh fetch
+    if (!user) {
+      didFetchProfileRef.current = false;
+      return;
+    }
+    if (profile || didFetchProfileRef.current) return;
+    didFetchProfileRef.current = true;
+
+    let cancelled = false;
+
+    getProfile()
+      .then((prof) => {
+        if (!cancelled) {
+          setProfile(prof);
+          saveCache(CACHE_PROFILE_KEY, prof);
+        }
+      })
+      .catch(() => {});
+
+    getAccount()
+      .then((acc) => {
+        if (!cancelled) {
+          setAccount(acc);
+          saveCache(CACHE_ACCOUNT_KEY, acc);
+        }
+      })
+      .catch(() => {});
+
+    getUnreadNotifications()
+      .then((res) => {
+        if (!cancelled) setUnreadCount(res.unread_count);
+      })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
+  }, [user, profile]);
+
   /** Obtiene la cuenta del backend y la sincroniza con contexto + caché.
    *  Centraliza el fetch para que login, registro y refresh compartan estado. */
   async function refreshAccount(retries = 0): Promise<Account | null> {

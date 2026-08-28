@@ -17,6 +17,11 @@ import { emailRules, nameRules, phoneRules } from "../../utils/validation";
 const CACHE_KEY = "cache_profile";
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
 
+/** Generate a cache-busting timestamp outside of React render */
+function cacheBust(): string {
+  return String(Date.now());
+}
+
 interface EditProfileFormValues {
   name: string;
   email: string;
@@ -149,6 +154,7 @@ export function PersonalDataPage() {
   async function onValidSubmit({ name, email, phone }: EditProfileFormValues) {
     setSaving(true);
     setSaveError("");
+    const bust = cacheBust();
 
     try {
       // Update profile fields
@@ -163,7 +169,7 @@ export function PersonalDataPage() {
         const photoUrl = await uploadPhoto(editPhoto);
         if (photoUrl) {
           // Append cache-busting param so the browser fetches the new image
-          updated.photo = `${photoUrl}?t=${Date.now()}`;
+          updated.photo = `${photoUrl}?t=${bust}`;
         }
       }
 
