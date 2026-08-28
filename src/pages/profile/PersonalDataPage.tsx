@@ -162,7 +162,8 @@ export function PersonalDataPage() {
       if (editPhoto) {
         const photoUrl = await uploadPhoto(editPhoto);
         if (photoUrl) {
-          updated.photo = photoUrl;
+          // Append cache-busting param so the browser fetches the new image
+          updated.photo = `${photoUrl}?t=${Date.now()}`;
         }
       }
 
