@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -53,6 +53,10 @@ export function SendMoneyPage() {
   const [serverError, setServerError] = useState("");
   const [transferResult, setTransferResult] = useState<Transfer | null>(null);
 
+  // Confirmation modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingData, setPendingData] = useState<SendMoneyFormValues | null>(null);
+
   // Add payee flow (success screen)
   const [payeeStatus, setPayeeStatus] = useState<
     "idle" | "saving" | "added" | "error"
@@ -78,35 +82,10 @@ export function SendMoneyPage() {
     mode: "onBlur",
   });
 
-  async function onSubmit({
-    receiver_email,
-    amount,
-    concept,
-  }: SendMoneyFormValues) {
-    setServerError("");
-    setStage("processing");
-
-    try {
-      const response = await sendTransfer({
-        receiver_email: receiver_email.trim(),
-        amount: parseFloat(amount.replace(",", ".")),
-        concept: concept.trim() || undefined,
-      });
-
-      setTransferResult(response.transfer);
-      // Sync balance everywhere after a successful transfer
-      refreshAccount();
-      // Check if receiver is already a frequent payee to hide the add button
-      checkPayeeExists(response.transfer.receiver.email);
-      setStage("success");
-    } catch (err) {
-      setServerError(
-        err instanceof Error
-          ? err.message
-          : "No se pudo realizar la transferencia",
-      );
-      setStage("error");
-    }
+  /** Called by react-hook-form on validation success → opens confirm modal */
+  function onFormValid(data: SendMoneyFormValues) {
+    setPendingData(data);
+    setShowConfirmModal(true);
   }
 
   function checkPayeeExists(email: string) {
@@ -126,6 +105,38 @@ export function SendMoneyPage() {
         setPayeeExists(false);
       });
   }
+
+  /** Actually send the transfer after user confirms */
+  const executeTransfer = useCallback(async () => {
+    if (!pendingData) return;
+    setShowConfirmModal(false);
+    setServerError("");
+    setStage("processing");
+
+    try {
+      const response = await sendTransfer({
+        receiver_email: pendingData.receiver_email.trim(),
+        amount: parseFloat(pendingData.amount.replace(",", ".")),
+        concept: pendingData.concept.trim() || undefined,
+      });
+
+      setTransferResult(response.transfer);
+      // Sync balance everywhere after a successful transfer
+      refreshAccount();
+      // Check if receiver is already a frequent payee to hide the add button
+      checkPayeeExists(response.transfer.receiver.email);
+      setStage("success");
+    } catch (err) {
+      setServerError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo realizar la transferencia",
+      );
+      setStage("error");
+    } finally {
+      setPendingData(null);
+    }
+  }, [pendingData, refreshAccount])
 
   async function handleAddPayee() {
     if (!transferResult) return;
@@ -411,7 +422,7 @@ export function SendMoneyPage() {
 
           <GlassCard className="p-5">
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onFormValid)}
               noValidate
               className="space-y-5"
             >
@@ -543,6 +554,87 @@ export function SendMoneyPage() {
         onClose={() => setShowPayeesModal(false)}
         onSelect={selectPayeeEmail}
       />
+
+      {/* ── Confirmation Modal ── */}
+      {showConfirmModal && pendingData && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setShowConfirmModal(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* Modal */}
+          <div
+            className="relative w-full sm:max-w-sm bg-bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-6 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="text-center">
+              <div className="mx-auto w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center mb-3">
+                <PaperPlaneTilt size={26} weight="bold" className="text-primary" />
+              </div>
+              <h3 className="text-lg font-bold text-text-primary">
+                Confirmar envío
+              </h3>
+              <p className="text-xs text-text-muted mt-1">
+                Revisa los datos antes de enviar
+              </p>
+            </div>
+
+            {/* Summary card */}
+            <div className="bg-bg-deep rounded-2xl border border-border p-4 space-y-3">
+              {/* Amount */}
+              <div className="text-center pb-3 border-b border-border">
+                <p className="text-3xl font-extrabold text-text-primary">
+                  ${formatMoney(parseFloat(pendingData.amount.replace(",", ".")))}
+                </p>
+                <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                  USD
+                </span>
+              </div>
+
+              {/* Recipient */}
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-text-muted">Enviar a</span>
+                <span className="text-sm font-semibold text-text-primary truncate max-w-[200px]">
+                  {pendingData.receiver_email}
+                </span>
+              </div>
+
+              {/* Concept (only if provided) */}
+              {pendingData.concept && (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-text-muted">Concepto</span>
+                  <span className="text-xs text-text-secondary truncate max-w-[200px]">
+                    {pendingData.concept}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="space-y-2.5">
+              <button
+                onClick={executeTransfer}
+                className="w-full h-12 rounded-xl bg-primary text-bg-deep font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-accent active:scale-[0.98] transition-all"
+              >
+                <PaperPlaneTilt size={18} weight="bold" />
+                Confirmar envío
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setPendingData(null);
+                }}
+                className="w-full h-11 rounded-xl bg-bg-card border border-border text-text-secondary font-semibold text-sm hover:text-text-primary hover:border-primary/30 transition-all"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
