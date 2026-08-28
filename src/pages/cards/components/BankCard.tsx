@@ -8,9 +8,10 @@ interface BankCardProps {
   visible: boolean;
 }
 
-function maskCardNumber(number: string, visible: boolean): string {
-  if (visible) return number;
-  const groups = number.replace(/\s/g, "").match(/.{1,4}/g) || [];
+function formatCardNumber(number: string, visible: boolean): string {
+  const clean = number.replace(/\s/g, "");
+  const groups = clean.match(/.{1,4}/g) || [];
+  if (visible) return groups.join(" ");
   return groups
     .map((group, i) => (i < groups.length - 1 ? "••••" : group))
     .join(" ");
@@ -38,8 +39,8 @@ export function BankCard({
 
       {/* Card details */}
       <div className="z-10">
-        <p className="text-xs text-emerald-950/70 font-medium tracking-widest mb-1 font-mono">
-          {maskCardNumber(cardNumber, visible)}
+        <p className="text-xs text-emerald-950/70 font-medium tracking-widest mb-4 font-mono">
+          {formatCardNumber(cardNumber, visible)}
         </p>
         <div className="flex justify-between items-end">
           <div className="flex gap-6">
